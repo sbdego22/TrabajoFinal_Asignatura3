@@ -1,0 +1,100 @@
+---
+title: "TrabajoFinal"
+author: "DiegoSolano"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(GGally)
+library(rpart)
+library(rpart.plot)
+library(randomForest)
+library(caret)
+library(mltools)
+library(e1071)
+```
+
+## 2. Modelos Predictivos de Clasificación Binaria
+
+#Modelo Predictivo para detectar si un usuario es fumador o no
+
+#1.Procede con la carga de datos
+```{r}
+train <- read.csv('./ObesityDataSet_raw_and_data_sinthetic.csv')
+```
+
+#Revisión del Dataset para evaluar la variable a utilizar para el modelo predictivo<br>
+```{r}
+str(train)
+summary(train)
+```
+<br>
+Con la revisión del dataset y sus variables se determina que para desarrollar el modelo predictivo si una persona es fumador o no se debe seleccionar la variable Smoke, el cual es una variable categorica binaria("Yes/NO"), cual deberá convertirse sus valores binarios númerico para que puedan funcionar en un modelo de clasificación predictivo como Regresión Logistica(Binomial),Árboles de Decisión, KKN, SVm y aplicar  métricas como: accurary,F1-SCore, recall, precisión, matriz de confusion entre otras.
+<br>
+<br>
+<br>
+
+Inicia convertir la variable "SMOKE" en "Yes" = 1 y "NO" = 0 
+<br>
+<br>
+```{r}
+train$SMOKE <- ifelse(train$SMOKE == "yes", 1, 0)
+```
+Define los datos entrenamiento sugeridos (70% Entrenamiento & 30% Prueba) para probar un modelo predicto, para este caso hemos seleccionado la regresión logística(Binomial)
+<br>
+<br>
+
+```{r}
+ind <- sample(1:dim(train)[1], 0.7 * dim(train)[1]) #Selecciona datos 
+train.set <- train[ind, ] #70%Datos para entrenamiento
+test.set <- train[-ind, ] #30%Datos para pruebas
+#Datos a Entrenar
+dim(train.set)
+#Datos a Probar
+dim(test.set)
+#Se procede a probar el modelo de Regresion logistica binaria con los datos para entrenamiento
+model <- glm(SMOKE ~.,family=binomial(link='logit'),data=train.set) 
+summary(model)
+#Se ejecuta la predicion con los datos modelados y set de pruebas
+pred.train <- predict(model,test.set)
+pred.train <- ifelse(pred.train > 0.5,1,0)
+#Accuracy Numero de predicciones correctas/Numero Datos Pruebas
+mean(pred.train==test.set$SMOKE)
+```
+
+
+
+#Aplicacion de Métricas de Presición y Recall
+
+```{r}
+t1<-table(pred.train,test.set$SMOKE)
+presicion<- t1[1,1]/(sum(t1[1,]))
+recall<- t1[1,1]/(sum(t1[,1]))
+#Imprime Precision
+presicion
+#Imprime Recall
+recall
+```
+#FI-SCORE
+```{r}
+F1<- 2*presicion*recall/(presicion+recall)
+F1
+```
+#Accuracy
+
+```{r}
+accuracy <- mean(pred.train == test.set$SMOKE)
+print(accuracy)
+```
+#Matriz de Confusión
+```{r}
+table(Predicted = pred.train, Actual = test.set$SMOKE)
+```
+
+
+
+

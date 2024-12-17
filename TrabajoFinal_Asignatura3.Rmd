@@ -1,0 +1,478 @@
+---
+title: "TrabajoFinal_Asignatura3"
+author: "TrabajoFinal_Asignatura3"
+date: "2024-12-11"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(GGally)
+library(rpart)
+library(rpart.plot)
+library(randomForest)
+library(caret)
+library(mltools)
+library(e1071)
+```
+## **1.Analisis Exploratorio del Conjunto Datos <br>**(Jacob)
+## **2.Modelos Predictivos de Clasificación Binaria<br>**
+
+## **2.1 Modelo Predictivo para detectar si un usuario es fumador o no<br>**(Diego)
+
+#### **2.1.1 Procede con la carga de datos<br>**
+```{r}
+datatrain <- read.csv('./data/ObesityDataSet_raw_and_data_sinthetic.csv')
+```
+#### **2.1.2 Revisión del Dataset para evaluar la variable a utilizar para el modelo predictivo<br>**
+```{r}
+str(datatrain)
+summary(datatrain)
+```
+<br>
+Con la revisión del dataset y sus variables se determina que para desarrollar el modelo predictivo si una persona es fumador o no, se debe seleccionar la variable Smoke, el cual es una variable categórica binaria("Yes/NO"), y debe convertirse sus valores en binarios númerico para que puedan funcionar en un modelo de clasificación predictivo como Regresión Logistica(Binomial),Árboles de Decisión, KKN, SVm y aplicar  métricas como: accurary,F1-SCore, recall, precisión, matriz de confusión entre otras.
+<br>
+<br>
+<br>
+
+#### **2.1.3 Inicia convertir la variable "SMOKE" en valor binarios númerico( "Yes" = 1 y "NO" = 0)<br>**
+```{r}
+datatrain$SMOKE <- ifelse(datatrain$SMOKE == "yes", 1, 0)
+```
+#### **2.1.4 Definimos los datos entrenamiento sugeridos (70% Entrenamiento & 30% Prueba) para probar un modelo predicto, para este caso hemos seleccionado la regresión logística(Binomial)<br><br>**
+```{r}
+ind <- sample(1:dim(datatrain)[1], 0.7 * dim(datatrain)[1]) #Selecciona datos 
+datatrain.set <- datatrain[ind, ] #70%Datos para entrenamiento
+datatest.set <- datatrain[-ind, ] #30%Datos para pruebas
+#Datos a Entrenar
+dim(datatrain.set)
+#Datos a Probar
+dim(datatest.set)
+#Se procede a probar el modelo de regresión logistíca binaria con los datos para entrenamiento
+model <- glm(SMOKE ~.,family=binomial(link='logit'),data=datatrain.set) 
+summary(model)
+#Se ejecuta la predicción con los datos modelados y set de pruebas
+pred.train <- predict(model,datatest.set)
+pred.train <- ifelse(pred.train > 0.5,1,0)
+```
+<br>
+<br>
+Regresión logística nos indica que parámetro binomial está cerca de 1, por lo que nos sugiere que los datos estudiados no tiene exceso de variabilidad(sobre dispersión) , el null deviance y residual deviance presenta valores menores a 300, lo que sugiere que modelo mejoró al incluir predictores,y nos presenta 15 a 20 iteraciones por lo que nos da equilibrio razonable entre ajuste y complejidad del modelo al hacer predicciones.
+<br>
+<br>
+
+#### **2.1.5 Aplicacion de Métricas<br><br>**
+
+
+##### **Accuracy:(Número de predicciones correctas/Número Datos Pruebas)<br>**
+
+```{r}
+mean(pred.train==datatest.set$SMOKE)
+
+```
+El accuracy nos indica que el modelo predictivo tiene una precision del 97% para los datos de pruebas, lo cual nos ayuda determinar que el 97% de las predicciones coinciden con los valores reales de variable "SMOKE" en el conjunto de data de prueba. <br><br>
+
+##### **Presicion y Recall <br>**
+
+El cálculo de precisión nos ayuda encontra los verdaderos positivos entre todos los casos predichos, y el recall permitirá mide los verdaderos positivos entre los casos positivos.<br>
+```{r}
+calPre_call<-table(pred.train,datatest.set$SMOKE)
+presicion<- calPre_call[1,1]/(sum(calPre_call[1,]))
+recall<- calPre_call[1,1]/(sum(calPre_call[,1]))
+#Imprime Precision
+presicion
+#Imprime Recall
+recall
+```
+Precisión dio como resultado 0.97 aproximadamente, lo que nos indica que el 97% de las predicciones positivas para la variable smoke = 1 ,  lo cual el modelo comete pocos falsos positivos.
+<br>
+Recall dio como resultado 0.99, lo que nos demuestra que el 99% de las prediciones encontró una observación positiva, lo que indica que el modelo no da falsos negativos.<br>
+<br>
+
+##### **FI-SCORE <br>**
+F1-CORE es una metrica combinada de precisión y recall<br>
+```{r}
+F1<- 2*presicion*recall/(presicion+recall)
+F1
+```
+<br>
+F1 tiene una como valor 0.98 por lo que nos indica que el hay un buen balance entre precisión y recall, lo que predice valores positivos  lo que indica que no comete muchos errores en la clasificación, por lo que el modelo predición esta ajustado y confiable para predecir la variable Smoke<br>
+<br>
+
+##### **Matriz de Confusión <br>**
+
+Se averigua el resultado de la matriz de confusión para averiguar el rendimiento del modelo de clasificación<br>
+```{r}
+table(Predicted = pred.train, Actual = datatest.set$SMOKE)
+```
+- Verdaderos Negativos(tn) En la matriz de confusión obtenemos los siguientes valores<br> 
+El modelo predijo smoke = 0 cuando realmente era 0. <br>
+-Falsos Positivos(FP)=15 , predijo incorrectamente smoke = 1 cuando realmente era 0.<br>
+-Falsos Negativos(FN)=4, predijo incorrectamente smoke = 0 cuando la clase real era 1. <br>
+-Verdaderos Positivos = 0, no predijo correctamente ningun caso de smoke = 1.<br><br>
+
+#### **2.1.6 Conclusión del Caso Detectar si una persona es fumador o no <br>**
+<br>
+Se revisa cada una de las métricas el accuracy, precisión, recall, están por encima 97% lo cual nos indica que el modelo predice correctamente la mayoria de los (No fumadores smoke = 0), pero para la detección de casos positivos(Si fumadores smoke=1 ), no logra detectar los casos, por lo que se concluye que los datos que presenta el modelo está muy sesgado ya que la mayoria de los datos son Smoke = 0, lo que afecta el rendimiento del modelo para predecir correctamente, en la matriz de confusión se observa mejor la anomalia, el cuando hay falsos negativos y falsos positivos, pero ningun caso positivo.<br><br>
+
+## **2.2 Modelo Predictivo para detectar si un usuario controla o no las calorías<br>**(Ricardo)
+
+## **3.Modelos Predictivos de Clasificación Multiclase<br>**(Kathy)
+
+#### **3.1 Cargar los datos desde el archivo <br>**
+getwd()
+file_path <- "/Volumes/KINGSTON/MAESTRIA_BIGDATA/TECNICAS_ANALISIS_ ASIG3/Cuadernos _Data/obesity_data_set_preprocessed.csv"
+file.exists("/Volumes/KINGSTON/MAESTRIA_BIGDATA/TECNICAS_ANALISIS_ ASIG3/Cuadernos _Data/obesity_data_set_preprocessed.csv")
+data <- read.csv(file_path, sep = ";", header = TRUE, stringsAsFactors = FALSE)
+
+#### **3.2 Explorar los datos<br>**
+head(data)
+
+#### **Resultado --------------------------------------------------------------<br>**
+Gender        Age     Height      Weight        BMI Weight_Class_Mendoza_De_La_Hoz Weight_Class_WHO Overweight_Family
+1      0 -0.5216176 -0.8741725 -0.86240301 -0.6632291                              1                1                 1
+2      0 -0.5216176 -1.9451986 -1.16786153 -0.6817273                              1                1                 1
+3      1 -0.2070077  1.0536746 -0.36603292 -0.7407015                              1                1                 1
+4      1  0.4222122  1.0536746  0.01579022 -0.3557160                              2                2                 0
+5      1 -0.3643127  0.8394694  0.13033717 -0.1619207                              3                2                 0
+6      1  0.7368222 -0.8741725 -1.28240847 -1.1860489                              1                1                 0
+High_Caloric_Consumption Vegetable_Consumption Main_Meals Between_Meals Smoker Water_Consumption Calory_Monitoring
+1                        0                     1          2             1      0                 1                 0
+2                        0                     2          2             1      1                 2                 1
+3                        0                     1          2             1      0                 1                 0
+4                        0                     2          2             1      0                 1                 0
+5                        0                     1          0             1      0                 1                 0
+6                        1                     1          2             1      0                 1                 0
+Physical_Activity Tech_Devices_Use Alcohol_Consumption Transport_Mean_Automobile Transport_Mean_Motorbike
+1                 0                1                   0                         0                        0
+2                 3                0                   1                         0                        0
+3                 2                1                   2                         0                        0
+4                 2                0                   2                         0                        0
+5                 0                0                   1                         0                        0
+6                 0                0                   1                         1                        0
+Transport_Mean_Bike Transport_Mean_Public_Transport Transport_Mean_Foot
+1                   0                               1                   0
+2                   0                               1                   0
+3                   0                               1                   0
+4                   0                               0                   1
+5                   0                               1                   0
+6                   0                               0                   0
+> 
+
+str(data)  
+
+#### **Resultado --------------------------------------------------------------<br>**
+'data.frame':	2111 obs. of  23 variables:
+  $ Gender                         : Factor w/ 2 levels "0","1": 1 1 2 2 2 2 1 2 2 2 ...
+$ Age                            : num  -0.522 -0.522 -0.207 0.422 -0.364 ...
+$ Height                         : num  -0.874 -1.945 1.054 1.054 0.839 ...
+$ Weight                         : num  -0.8624 -1.1679 -0.366 0.0158 0.1303 ...
+$ BMI                            : num  -0.663 -0.682 -0.741 -0.356 -0.162 ...
+$ Weight_Class_Mendoza_De_La_Hoz : int  1 1 1 2 3 1 1 1 1 1 ...
+$ Weight_Class_WHO               : Factor w/ 6 levels "0","1","2","3",..: 2 2 2 3 3 2 2 2 2 2 ...
+$ Overweight_Family              : Factor w/ 2 levels "0","1": 2 2 2 1 1 1 2 1 2 2 ...
+$ High_Caloric_Consumption       : Factor w/ 2 levels "0","1": 1 1 1 1 1 2 2 1 2 2 ...
+$ Vegetable_Consumption          : Factor w/ 3 levels "0","1","2": 2 3 2 3 2 2 3 2 3 2 ...
+$ Main_Meals                     : Factor w/ 4 levels "0","1","2","3": 3 3 3 3 1 3 3 3 3 3 ...
+$ Between_Meals                  : Factor w/ 4 levels "0","1","2","3": 2 2 2 2 2 2 2 2 2 2 ...
+$ Smoker                         : Factor w/ 2 levels "0","1": 1 2 1 1 1 1 1 1 1 1 ...
+$ Water_Consumption              : Factor w/ 3 levels "0","1","2": 2 3 2 2 2 2 2 2 2 2 ...
+$ Calory_Monitoring              : Factor w/ 2 levels "0","1": 1 2 1 1 1 1 1 1 1 1 ...
+$ Physical_Activity              : Factor w/ 4 levels "0","1","2","3": 1 4 3 3 1 1 2 4 2 2 ...
+$ Tech_Devices_Use               : Factor w/ 3 levels "0","1","2": 2 1 2 1 1 1 1 1 2 2 ...
+$ Alcohol_Consumption            : Factor w/ 3 levels "0","1","2": 1 2 3 3 2 2 2 2 3 1 ...
+$ Transport_Mean_Automobile      : Factor w/ 2 levels "0","1": 1 1 1 1 1 2 1 1 1 1 ...
+$ Transport_Mean_Motorbike       : Factor w/ 2 levels "0","1": 1 1 1 1 1 1 2 1 1 1 ...
+$ Transport_Mean_Bike            : Factor w/ 2 levels "0","1": 1 1 1 1 1 1 1 1 1 1 ...
+$ Transport_Mean_Public_Transport: Factor w/ 2 levels "0","1": 2 2 2 1 2 1 1 2 2 2 ...
+$ Transport_Mean_Foot            : Factor w/ 2 levels "0","1": 1 1 1 2 1 1 1 1 1 1 ...
+> 
+
+  
+#### **3.3 Limpiar las columnas para reemplazar comas por puntos y convertir a numérico<br>**
+data$Height <- as.numeric(gsub(",", ".", data$Height))
+data$Weight <- as.numeric(gsub(",", ".", data$Weight))
+data$BMI <- as.numeric(gsub(",", ".", data$BMI))
+
+#### **3.4 Verificacion si la limpieza quedó como esperamos<br>**
+summary(data[, c("Height", "Weight", "BMI")])
+
+#### **Resultado ---------------------------------------------------------------<br>**
+
+Height             Weight             BMI         
+Min.   :-2.69492   Min.   :-1.8170   Min.   :-2.0662  
+1st Qu.:-0.76707   1st Qu.:-0.8051   1st Qu.:-0.6702  
+Median :-0.01735   Median :-0.1369   Median :-0.1212  
+Mean   : 0.00000   Mean   : 0.0000   Mean   : 0.0000  
+3rd Qu.: 0.73237   3rd Qu.: 0.7794   3rd Qu.: 0.7833  
+Max.   : 2.98152   Max.   : 3.2995   Max.   : 2.6298  
+
+
+
+#### **3.5 Recalculo del BMI<br>**
+data$BMI <- data$Weight / (data$Height^2)
+summary(data$BMI)
+
+#### **Resultado ----------------------------------------------------------------<br>**
+Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+-4639.879    -1.264    -0.155   -70.630     1.195  5886.147 
+
+
+#### **3.6 Convertir variables categóricas <br>**
+categoricas <- c("Gender", "Overweight_Family", "High_Caloric_Consumption", 
+                 "Vegetable_Consumption", "Main_Meals", "Between_Meals", 
+                 "Smoker", "Water_Consumption", "Calory_Monitoring", 
+                 "Physical_Activity", "Tech_Devices_Use", "Alcohol_Consumption", 
+                 "Transport_Mean_Automobile", "Transport_Mean_Motorbike", 
+                 "Transport_Mean_Bike", "Transport_Mean_Public_Transport", 
+                 "Transport_Mean_Foot", "Weight_Class_WHO")
+data[categoricas] <- lapply(data[categoricas], as.factor)
+
+#### **3.7 Escalar variables continuas <br>**
+
+continuas <- c("Age", "Height", "Weight", "BMI")
+preproc <- preProcess(data[, continuas], method = c("center", "scale"))
+data[, continuas] <- predict(preproc, data[, continuas])
+summary(data)
+
+#### ** Resultado ---------------------------------------------------------------**
+Gender        Age              Height             Weight             BMI          Weight_Class_Mendoza_De_La_Hoz
+0:1043   Min.   :-1.6228   Min.   :-2.69492   Min.   :-1.8170   Min.   :-7.2700   Min.   :0.000                 
+1:1068   1st Qu.:-0.6789   1st Qu.:-0.76707   1st Qu.:-0.8051   1st Qu.: 0.1104   1st Qu.:1.000                 
+Median :-0.2070   Median :-0.01735   Median :-0.1369   Median : 0.1121   Median :3.000                 
+Mean   : 0.0000   Mean   : 0.00000   Mean   : 0.0000   Mean   : 0.0000   Mean   :3.112                 
+3rd Qu.: 0.2649   3rd Qu.: 0.73237   3rd Qu.: 0.7794   3rd Qu.: 0.1143   3rd Qu.:5.000                 
+Max.   : 5.7706   Max.   : 2.98152   Max.   : 3.2995   Max.   : 9.4776   Max.   :6.000                 
+Weight_Class_WHO Overweight_Family High_Caloric_Consumption Vegetable_Consumption Main_Meals Between_Meals Smoker  
+0:267            0: 385            0: 245                   0:  33                0: 316     0:  51        0:2067  
+1:306            1:1726            1:1866                   1: 600                1: 176     1:1765        1:  44  
+2:565                                                       2:1478                2:1470     2: 242                
+3:368                                                                             3: 149     3:  53                
+4:338                                                                                                              
+5:267                                                                                                              
+Water_Consumption Calory_Monitoring Physical_Activity Tech_Devices_Use Alcohol_Consumption Transport_Mean_Automobile
+0: 485            0:2015            0:720             0:952            0: 639              0:1654                   
+1:1110            1:  96            1:776             1:915            1:1401              1: 457                   
+2: 516                              2:496             2:244            2:  71                                       
+3:119                                                                           
+
+
+Transport_Mean_Motorbike Transport_Mean_Bike Transport_Mean_Public_Transport Transport_Mean_Foot
+0:2100                   0:2104              0: 531                          0:2055             
+1:  11                   1:   7              1:1580                          1:  56 
+
+
+#### **3.8 Preparar datos de entrenamiento y prueba <br>**
+
+set.seed(200)
+trainIndex <- createDataPartition(data$Weight_Class_WHO, p = 0.8, list = FALSE)
+data$Weight_Class_WHO <- as.factor(data$Weight_Class_WHO)
+trainIndex <- createDataPartition(data$Weight_Class_WHO, p = 0.8, list = FALSE)
+trainData <- data[trainIndex, ]
+testData <- data[-trainIndex, ]
+
+#### **3.9 Entrenar un modelo Random Forest <br>**
+set.seed(200)
+modelo_rf <- randomForest(Weight_Class_WHO ~ ., data = trainData, ntree = 100)
+print(modelo_rf)
+
+
+#### **Resultado ---------------------------------------------------------------**
+Call:
+  randomForest(formula = Weight_Class_WHO ~ ., data = trainData,      ntree = 100) 
+Type of random forest: classification
+Number of trees: 100
+No. of variables tried at each split: 4
+
+OOB estimate of  error rate: 2.66%
+Confusion matrix:
+  0   1   2   3   4   5 class.error
+0 211   3   0   0   0   0 0.014018692
+1   6 231   8   0   0   0 0.057142857
+2   0   1 449   2   0   0 0.006637168
+3   0   0   3 286   6   0 0.030508475
+4   0   0   1   5 257   8 0.051660517
+5   0   0   0   0   2 212 0.009345794
+
+
+#### **3.10 Predicciones en el conjunto de prueba <br>**
+pred_rf <- predict(modelo_rf, testData)
+print(pred_rf)
+
+
+#### **Resultado ---------------------------------------------------------------**
+20   32   34   39   42   45   51   60   64   79   80   88   92  109  119  134  135  141  147  152  156  166  177  185  186 
+2    2    2    1    1    1    1    0    1    3    1    2    1    3    1    1    3    1    1    1    1    4    1    2    2 
+193  194  195  201  202  204  207  214  218  223  227  234  237  238  244  253  259  260  269  272  273  289  292  293  295 
+2    1    3    3    3    3    3    1    2    1    1    2    1    1    2    2    2    3    1    1    1    1    0    1    3 
+301  304  306  307  308  309  311  312  314  332  333  339  341  351  354  368  369  373  377  378  379  388  389  408  411 
+1    1    4    1    1    1    0    1    1    1    1    2    1    1    1    2    2    1    1    1    1    3    3    2    1 
+412  415  425  431  432  436  437  439  446  450  452  453  455  463  464  467  468  471  476  485  489  495  496  505  515 
+2    3    2    3    1    2    1    1    1    1    1    1    1    2    1    1    1    1    2    2    1    1    1    5    0 
+517  523  525  538  539  543  545  546  548  551  552  556  558  559  571  572  573  576  577  582  590  596  597  598  603 
+0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0 
+604  614  619  626  646  649  651  658  668  671  672  673  678  687  691  693  699  700  703  704  706  736  740  745  767 
+0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    2 
+769  771  774  776  781  785  787  794  797  805  808  815  817  820  828  832  837  841  851  861  885  886  888  890  896 
+2    2    2    2    2    1    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2 
+897  901  904  906  909  910  911  912  914  920  925  929  954  964  979  982  990  992 1006 1008 1009 1011 1020 1021 1022 
+2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2 
+1027 1028 1029 1033 1044 1046 1048 1050 1053 1054 1055 1059 1060 1077 1078 1083 1094 1096 1099 1102 1109 1110 1112 1113 1114 
+2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2 
+1117 1120 1124 1127 1129 1144 1148 1149 1154 1163 1170 1172 1175 1181 1183 1195 1198 1201 1207 1209 1212 1216 1219 1222 1228 
+2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    2    3    3    3    3    3 
+1234 1243 1248 1250 1252 1254 1266 1271 1282 1303 1310 1315 1335 1338 1339 1340 1345 1351 1353 1355 1358 1361 1362 1364 1375 
+3    3    3    3    3    3    3    3    3    3    3    3    3    3    3    3    3    3    3    3    3    3    3    3    3 
+1382 1383 1384 1395 1401 1405 1410 1413 1422 1428 1429 1431 1438 1448 1449 1463 1465 1467 1470 1471 1472 1479 1484 1488 1505 
+3    3    3    3    3    3    3    3    3    3    3    3    3    3    3    3    3    3    3    3    3    3    3    3    3 
+1518 1520 1524 1532 1534 1539 1543 1545 1550 1551 1552 1555 1559 1561 1566 1572 1573 1582 1586 1591 1599 1600 1602 1607 1614 
+4    4    4    4    4    4    4    4    4    4    4    4    4    4    4    4    4    4    4    4    4    4    4    4    4 
+1617 1625 1638 1645 1659 1662 1663 1668 1672 1676 1684 1687 1694 1696 1698 1699 1705 1719 1721 1734 1737 1738 1746 1747 1751 
+4    4    4    4    4    3    4    4    4    4    4    4    4    4    4    4    4    4    4    4    4    3    4    4    4 
+1755 1769 1776 1781 1787 1791 1792 1793 1795 1807 1831 1835 1844 1852 1854 1856 1857 1859 1868 1871 1876 1877 1880 1881 1885 
+4    4    4    4    4    4    4    4    4    5    4    5    4    5    5    5    5    5    5    5    5    5    5    5    5 
+1893 1899 1900 1903 1911 1918 1931 1932 1938 1942 1943 1945 1946 1950 1963 1968 1973 1975 1979 1993 2000 2002 2005 2008 2009 
+5    5    5    4    5    5    4    4    5    5    5    5    5    5    5    4    5    5    5    5    5    5    5    4    5 
+2010 2022 2024 2031 2033 2036 2046 2049 2052 2053 2054 2060 2061 2067 2068 2074 2078 2085 2086 2089 
+5    5    5    5    5    5    5    5    5    5    5    5    5    5    5    5    5    5    5    5 
+Levels: 0 1 2 3 4 5
+
+
+
+#### **3.11 Evaluación del modelo<br>**
+conf_rf <- confusionMatrix(pred_rf, testData$Weight_Class_WHO)
+print(conf_rf)
+
+#### **Resultado --------------------------------------------------------------- <br>**
+Confusion Matrix and Statistics
+
+Reference
+Prediction   0   1   2   3   4   5
+0  51   2   0   0   0   0
+1   2  56   0   0   0   0
+2   0   3 113   1   0   0
+3   0   0   0  70   1   0
+4   0   0   0   2  64   0
+5   0   0   0   0   2  53
+
+Overall Statistics
+
+Accuracy : 0.969           
+95% CI : (0.9477, 0.9834)
+No Information Rate : 0.269           
+P-Value [Acc > NIR] : < 2.2e-16       
+
+Kappa : 0.9622          
+
+Mcnemar's Test P-Value : NA              
+
+#### Statistics by Class:
+
+                     Class: 0 Class: 1 Class: 2 Class: 3 Class: 4 Class: 5
+Sensitivity            0.9623   0.9180   1.0000   0.9589   0.9552   1.0000
+Specificity            0.9946   0.9944   0.9870   0.9971   0.9943   0.9946
+Pos Pred Value         0.9623   0.9655   0.9658   0.9859   0.9697   0.9636
+Neg Pred Value         0.9946   0.9862   1.0000   0.9914   0.9915   1.0000
+Prevalence             0.1262   0.1452   0.2690   0.1738   0.1595   0.1262
+Detection Rate         0.1214   0.1333   0.2690   0.1667   0.1524   0.1262
+Detection Prevalence   0.1262   0.1381   0.2786   0.1690   0.1571   0.1310
+Balanced Accuracy      0.9784   0.9562   0.9935   0.9780   0.9748   0.9973
+
+
+#### Matriz de confusión
+
+conf_matrix_table <- as.data.frame(conf_rf$table)
+ggplot(data = conf_matrix_table, aes(x = Reference, y = Prediction, fill = Freq)) +
+  geom_tile() +
+  geom_text(aes(label = Freq), color = "white", size = 4) +
+  scale_fill_gradient(low = "blue", high = "red") +
+  labs(title = "Matriz de Confusión - Random Forest", x = "Clases Reales", y = "Clases Predichas") +
+  theme_minimal()
+
+####  Precisión global
+accuracy <- conf_rf$overall["Accuracy"]
+cat("Precisión del modelo:", accuracy, "\n")
+
+#### Resultado
+
+Precisión del modelo: 0.9690476 
+
+#### Métricas por clase
+metrics <- as.data.frame(conf_rf$byClass)
+metrics$Clase <- rownames(metrics)
+
+#### Graficar precisión, recall y F1 por clase
+ggplot(metrics, aes(x = Clase)) +
+  geom_bar(aes(y = Precision), stat = "identity", fill = "steelblue", alpha = 0.7) +
+  geom_bar(aes(y = Recall), stat = "identity", fill = "darkgreen", alpha = 0.7, position = "dodge") +
+  geom_bar(aes(y = F1), stat = "identity", fill = "purple", alpha = 0.7, position = "dodge") +
+  labs(title = "Métricas por Clase - Random Forest", y = "Valor", x = "Clase") +
+  theme_minimal() +
+  scale_y_continuous(limits = c(0, 1))
+
+#### Matriz de confusión y métricas
+conf_rf <- confusionMatrix(pred_rf, testData$Weight_Class_WHO)
+print(conf_rf)
+
+#### Resultado
+Confusion Matrix and Statistics
+
+          Reference
+Prediction   0   1   2   3   4   5
+         0  51   2   0   0   0   0
+         1   2  56   0   0   0   0
+         2   0   3 113   1   0   0
+         3   0   0   0  70   1   0
+         4   0   0   0   2  64   0
+         5   0   0   0   0   2  53
+
+Overall Statistics
+                                          
+               Accuracy : 0.969           
+                 95% CI : (0.9477, 0.9834)
+    No Information Rate : 0.269           
+    P-Value [Acc > NIR] : < 2.2e-16       
+                                          
+                          
+                                          
+
+
+
+#### Conclusiones Predicion Multiclase:
+El enunciado nos solicitaba realizar un modelo predictivo multiclase para obtener
+el grado de obesidad de una persona. La variable objetivo que utilizamos fue 
+Weight_Class_WHOcomo y empleamos un modelo como Random Forest para la predicción<br>
+
+El modelo demostró predecir en un alto porcentaje el grado de obesidad de una persona de un 96.9%, o sea casi un 97% de las predicciones fueron correctas.<br>
+
+El CI 95%, muestra que la exactitud estimada se encuentra entre 94.77% y 98.34%, lo que confirma la estabilidad del modelo.<br>
+
+La variable que más influencia obtuvo en el análisis fue el BMI (Índice de Masa Corporal)
+para predecir el grado de obesidad, lo cual es consistente con el hecho de que esta métrica está directamente relacionada con las categorías de la OMS.<br>
+
+Otras variables importantes que influyeron en el resultado fueron:
+1. Consumo calórico elevado: Indicativo de una dieta que puede influir directamente en el peso.<br>
+2. Actividad física: Un factor crítico para controlar el peso y mantener un IMC saludable.<br>
+3. Consumo de verduras y número de comidas principales: Hábitos alimenticios que influyen en la regulación del peso.<br>
+
+La matriz de confusión muestra una excelente capacidad para diferenciar entre clases, con solo unas pocas confusiones entre clases adyacentes, como Obesidad II y Obesidad I.<br>
+
+Las métricas por clase muestran<br>
+
+
+Clase	             Precisión	Sensibilidad	F1-Score
+Clase 0 (Infrapeso)	97%	      94%	            95%
+Clase 1 (Normal)  	96%	      97%	            96%
+Clase 2 (Sobrepeso)	99%	      97%	            98%
+Clase 3 (Obesidad I)	97%	    96%	            96%
+Clase 4 (Obesidad II)	95%	    93%	            94%
+Clase 5 (Obesidad III)	98%	  98%	           98%
+
+En resumen podemos indicar que el modelo es confiable para clasificar el grado de obesidad, aunque tiene ligeras confusiones entre clases cercanas.<br>
+
+## **4. Técnica de Clustering para Segmentar a la Población del Data Set**(Mercedes)
+
+
+##Conclusiones del Trabajo.
