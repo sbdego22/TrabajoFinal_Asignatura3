@@ -37,10 +37,29 @@ Con la revisión del dataset y sus variables se determina que para desarrollar e
 <br>
 <br>
 
-#### **2.1.3 Inicia convertir la variable "SMOKE" en valor binarios númerico( "Yes" = 1 y "NO" = 0)<br>**
+
+#### **2.1.3 Verificar la Factibilidad de la Variable SMOKE<br><br>**
+
+Se debe analizar la variable "SMOKE", para determinar si es factible para predicir si una persona es o no fumador<br>
+
 ```{r}
+#Se procede a convertir a binario
 datatrain$SMOKE <- ifelse(datatrain$SMOKE == "yes", 1, 0)
 ```
+```{r}
+# Se verifica Frecuencia o cantidad de casos (NO Fumadores = 0/Fumadores =1)
+table(datatrain$SMOKE)
+
+# Se valida el %Porcentaje  de los datos observados (NO Fumadores = 0/Fumadores =1)
+prop.table(table(datatrain$SMOKE))
+```
+<br>
+Según la clasificación binaria o multiclase si el dataset o variable estudiada
+presenta observaciones mayor al 40%, esto indica que el modelo puede entrenarse, pero si las observaciones es menor al 10% nos indica que los datos están desbalanceados, por lo que en un modelo de entrenamiento no va hacer factible o creible, ya que va favorecer los resultados de la observación mayoritaria en este caso "No Fumadores" que representa el 97%  e ignorar la observación minoritaria en este caso "Si Fumadores" que representa 3% del dataset.<br>
+
+Para que funcione bien el modelo de predicción debe aplicarse técnicas adicionales para balancear los datos, pero para efectos de este proyecto vamos realizar la predicciones sin hacer el balanceo validar la teoría que indica esto afectaria los modelos predictivos y las aplicadas métricas<br>
+
+
 #### **2.1.4 Definimos los datos entrenamiento sugeridos (70% Entrenamiento & 30% Prueba) para probar un modelo predicto, para este caso hemos seleccionado la regresión logística(Binomial)<br><br>**
 ```{r}
 ind <- sample(1:dim(datatrain)[1], 0.7 * dim(datatrain)[1]) #Selecciona datos 
@@ -72,7 +91,7 @@ Regresión logística nos indica que parámetro binomial está cerca de 1, por l
 mean(pred.train==datatest.set$SMOKE)
 
 ```
-El accuracy nos indica que el modelo predictivo tiene una precision del 97% para los datos de pruebas, lo cual nos ayuda determinar que el 97% de las predicciones coinciden con los valores reales de variable "SMOKE" en el conjunto de data de prueba. <br><br>
+El accuracy nos indica que el modelo predictivo tiene una precision del 97% para los datos de pruebas, lo cual nos ayuda determinar que el 97% de las predicciones coinciden con los valores reales de variable "SMOKE" en el conjunto de data de prueba, lo cual nos comprueba el punto 2.1.3 sobre desbalanceo de los datos. <br><br>
 
 ##### **Presicion y Recall <br>**
 
@@ -88,7 +107,7 @@ recall
 ```
 Precisión dio como resultado 0.97 aproximadamente, lo que nos indica que el 97% de las predicciones positivas para la variable smoke = 1 ,  lo cual el modelo comete pocos falsos positivos.
 <br>
-Recall dio como resultado 0.99, lo que nos demuestra que el 99% de las prediciones encontró una observación positiva, lo que indica que el modelo no da falsos negativos.<br>
+Recall dio como resultado 0.99, lo que nos demuestra que el 99% de las prediciones encontró una observación positiva, lo que indica que el modelo no da falsos negativos, lo que nos comprueba que hay desbalanceo de los datos "No fumadores" / "Si Fumadores"<br>
 <br>
 
 ##### **FI-SCORE <br>**
@@ -98,7 +117,7 @@ F1<- 2*presicion*recall/(presicion+recall)
 F1
 ```
 <br>
-F1 tiene una como valor 0.98 por lo que nos indica que el hay un buen balance entre precisión y recall, lo que predice valores positivos  lo que indica que no comete muchos errores en la clasificación, por lo que el modelo predición esta ajustado y confiable para predecir la variable Smoke<br>
+F1 tiene una como valor 0.98 por lo que nos indica que el hay un buen balance entre precisión y recall, lo que predice la mayoria valores positivos  lo que indica que no comete muchos errores en la clasificación, por lo que el modelo predición esta ajustado y confiable para predecir la variable Smoke segun la teoria, pero en realidad esto no es correcto, porque solo toma en cuenta el porcentaje datos "NO FUMADORES" que representa 97% de la datos de la variable.<br>
 <br>
 
 ##### **Matriz de Confusión <br>**
@@ -113,9 +132,13 @@ El modelo predijo smoke = 0 cuando realmente era 0. <br>
 -Falsos Negativos(FN)=4, predijo incorrectamente smoke = 0 cuando la clase real era 1. <br>
 -Verdaderos Positivos = 0, no predijo correctamente ningun caso de smoke = 1.<br><br>
 
+Esto nos comprueba la teoria del punto 2.3.1, los datos utilizados no son factibles para hacer prediciones, porque ha ignorado por completo casos de "SI FUMADORES", el cual si existieran más del 40% habria verdaderos positivos, este caso el modelo a ignorado completamente las personas de nuestro dataset que si son fumadores, para cuestiones de estadísticas o estudios  no podríamos dar una conclusión segura de cuales variables o que motiva a una persona hacer fumador o no. 
+
 #### **2.1.6 Conclusión del Caso Detectar si una persona es fumador o no <br>**
 <br>
-Se revisa cada una de las métricas el accuracy, precisión, recall, están por encima 97% lo cual nos indica que el modelo predice correctamente la mayoria de los (No fumadores smoke = 0), pero para la detección de casos positivos(Si fumadores smoke=1 ), no logra detectar los casos, por lo que se concluye que los datos que presenta el modelo está muy sesgado ya que la mayoria de los datos son Smoke = 0, lo que afecta el rendimiento del modelo para predecir correctamente, en la matriz de confusión se observa mejor la anomalia, el cuando hay falsos negativos y falsos positivos, pero ningun caso positivo.<br><br>
+Se revisa cada una de las métricas el accuracy, precisión, recall, están por encima 97% lo cual nos indica que el modelo predice correctamente la mayoria de los (No fumadores smoke = 0), según lo estudiado esto no es lo normal para un modelo.
+
+Segun lo revisado desde el inicio de estudio de las variables el cual nos indica hay un desbalanceo de los datos de la variable "SMOKE", por lo que siempre va tomar los resultados de los "No Fumadores", e ignorar los datos "Si Fumadores", lo que afecta el rendimiento del modelo para predecir correctamente, y en la matriz de confusión se observa correctamente la anomalia, el cuando hay falsos negativos y falsos positivos, pero ningun caso positivo.<br><br>
 
 ## **2.2 Modelo Predictivo para detectar si un usuario controla o no las calorías<br>**(Ricardo)
 

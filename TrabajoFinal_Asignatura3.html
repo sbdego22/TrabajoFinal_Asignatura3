@@ -439,10 +439,36 @@ Regresión Logistica(Binomial),Árboles de Decisión, KKN, SVm y aplicar
 métricas como: accurary,F1-SCore, recall, precisión, matriz de confusión
 entre otras. <br> <br> <br></p>
 </div>
-<div id="inicia-convertir-la-variable-smoke-en-valor-binarios-númerico-yes-1-y-no-0" class="section level4">
-<h4><strong>2.1.3 Inicia convertir la variable “SMOKE” en valor binarios
-númerico( “Yes” = 1 y “NO” = 0)<br></strong></h4>
-<pre class="r"><code>datatrain$SMOKE &lt;- ifelse(datatrain$SMOKE == &quot;yes&quot;, 1, 0)</code></pre>
+<div id="verificar-la-factibilidad-de-la-variable-smoke" class="section level4">
+<h4><strong>2.1.3 Verificar la Factibilidad de la Variable
+SMOKE<br><br></strong></h4>
+<p>Se debe analizar la variable “SMOKE”, para determinar si es factible
+para predicir si una persona es o no fumador<br></p>
+<pre class="r"><code>#Se procede a convertir a binario
+datatrain$SMOKE &lt;- ifelse(datatrain$SMOKE == &quot;yes&quot;, 1, 0)</code></pre>
+<pre class="r"><code># Se verifica Frecuencia o cantidad de casos SI/NO Fumadores
+table(datatrain$SMOKE)</code></pre>
+<pre><code>## 
+##    0    1 
+## 2067   44</code></pre>
+<pre class="r"><code># Se valida su proporción de los datos 
+prop.table(table(datatrain$SMOKE))</code></pre>
+<pre><code>## 
+##         0         1 
+## 0.9791568 0.0208432</code></pre>
+<p><br> Según la clasificación binaria o multiclase si el dataset o
+proporción de los datos de las clases presenta observaciones mayor al
+40%, esto indica que el modelo puede entrenarse, pero si uno es menor al
+10% nos indica que los datos están desbalanceados, por lo que en un
+modelo de entrenamiento simpere va favorecer los resultados a la clase
+mayoritaria en este caso “No Fumadores” que representa el 97% e ignorar
+la clase minoritaria los “Si Fumadores” que representa 3% en nuestro
+dataset.<br></p>
+<p>Para que funcione bien el modelo de predicción debe aplicarse
+técnicas adicionales para balancear los datos, pero para efectos de este
+proyecto vamos realizar la predicciones sin hacer el balanceo verificar
+la teoría que indica la clasificación binaria(va ver un sesgo en los
+resultados). <br></p>
 </div>
 <div id="definimos-los-datos-entrenamiento-sugeridos-70-entrenamiento-30-prueba-para-probar-un-modelo-predicto-para-este-caso-hemos-seleccionado-la-regresión-logísticabinomial" class="section level4">
 <h4><strong>2.1.4 Definimos los datos entrenamiento sugeridos (70%
@@ -459,54 +485,53 @@ dim(datatrain.set)</code></pre>
 dim(datatest.set)</code></pre>
 <pre><code>## [1] 634  17</code></pre>
 <pre class="r"><code>#Se procede a probar el modelo de regresión logistíca binaria con los datos para entrenamiento
-model &lt;- glm(SMOKE ~.,family=binomial(link=&#39;logit&#39;),data=datatrain.set) </code></pre>
-<pre><code>## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
-<pre class="r"><code>summary(model)</code></pre>
+model &lt;- glm(SMOKE ~.,family=binomial(link=&#39;logit&#39;),data=datatrain.set) 
+summary(model)</code></pre>
 <pre><code>## 
 ## Call:
 ## glm(formula = SMOKE ~ ., family = binomial(link = &quot;logit&quot;), data = datatrain.set)
 ## 
 ## Coefficients:
 ##                                     Estimate Std. Error z value Pr(&gt;|z|)    
-## (Intercept)                       -1.482e+01  1.083e+04  -0.001 0.998908    
-## GenderMale                        -7.900e-01  7.649e-01  -1.033 0.301675    
-## Age                                1.150e-01  3.376e-02   3.406 0.000659 ***
-## Height                             1.728e+00  5.724e+00   0.302 0.762775    
-## Weight                             3.534e-02  4.944e-02   0.715 0.474715    
-## family_history_with_overweightyes  1.235e+00  9.215e-01   1.340 0.180170    
-## FAVCyes                           -1.192e+00  5.561e-01  -2.143 0.032086 *  
-## FCVC                               6.924e-01  4.455e-01   1.554 0.120116    
-## NCP                               -9.704e-02  2.967e-01  -0.327 0.743642    
-## CAECFrequently                     2.310e+00  1.454e+00   1.589 0.112160    
-## CAECno                            -1.242e+01  1.352e+03  -0.009 0.992671    
-## CAECSometimes                      1.814e+00  1.524e+00   1.191 0.233809    
-## CH2O                              -7.534e-01  3.664e-01  -2.056 0.039760 *  
-## SCCyes                             1.620e+00  8.888e-01   1.822 0.068404 .  
-## FAF                               -3.050e-04  2.901e-01  -0.001 0.999161    
-## TUE                                5.770e-01  3.387e-01   1.704 0.088426 .  
-## CALCFrequently                     5.596e-01  1.083e+04   0.000 0.999959    
-## CALCno                            -2.455e+00  1.083e+04   0.000 0.999819    
-## CALCSometimes                     -5.343e-01  1.083e+04   0.000 0.999961    
-## MTRANSBike                        -1.463e+01  4.029e+03  -0.004 0.997103    
-## MTRANSMotorbike                    4.223e+00  1.590e+00   2.655 0.007922 ** 
-## MTRANSPublic_Transportation        1.184e+00  5.929e-01   1.996 0.045902 *  
-## MTRANSWalking                     -1.587e+01  1.309e+03  -0.012 0.990332    
-## NObeyesdadNormal_Weight            9.781e-01  1.480e+00   0.661 0.508688    
-## NObeyesdadObesity_Type_I           1.200e-02  2.556e+00   0.005 0.996256    
-## NObeyesdadObesity_Type_II         -2.057e-01  3.226e+00  -0.064 0.949145    
-## NObeyesdadObesity_Type_III        -3.564e+00  4.079e+00  -0.874 0.382182    
-## NObeyesdadOverweight_Level_I      -1.595e+00  2.094e+00  -0.762 0.446179    
-## NObeyesdadOverweight_Level_II      9.616e-02  2.103e+00   0.046 0.963526    
+## (Intercept)                       -3.108e+01  3.956e+03  -0.008  0.99373    
+## GenderMale                        -7.822e-01  7.593e-01  -1.030  0.30293    
+## Age                                1.740e-01  3.988e-02   4.363 1.29e-05 ***
+## Height                             4.275e+00  5.289e+00   0.808  0.41891    
+## Weight                             4.568e-03  4.845e-02   0.094  0.92487    
+## family_history_with_overweightyes  4.270e-01  6.626e-01   0.644  0.51927    
+## FAVCyes                           -9.324e-01  5.897e-01  -1.581  0.11383    
+## FCVC                               9.046e-01  4.508e-01   2.007  0.04478 *  
+## NCP                               -4.736e-03  3.097e-01  -0.015  0.98780    
+## CAECFrequently                    -1.304e+00  9.153e-01  -1.425  0.15426    
+## CAECno                            -3.469e-01  1.529e+00  -0.227  0.82055    
+## CAECSometimes                     -2.224e+00  8.607e-01  -2.584  0.00978 ** 
+## CH2O                              -4.490e-01  3.505e-01  -1.281  0.20021    
+## SCCyes                             1.345e+00  7.949e-01   1.692  0.09056 .  
+## FAF                                3.486e-01  2.776e-01   1.256  0.20910    
+## TUE                                8.159e-01  3.301e-01   2.472  0.01344 *  
+## CALCFrequently                     1.293e+01  3.956e+03   0.003  0.99739    
+## CALCno                             1.156e+01  3.956e+03   0.003  0.99767    
+## CALCSometimes                      1.366e+01  3.956e+03   0.003  0.99724    
+## MTRANSBike                        -1.502e+01  1.440e+03  -0.010  0.99167    
+## MTRANSMotorbike                   -1.249e+01  1.361e+03  -0.009  0.99268    
+## MTRANSPublic_Transportation        9.867e-01  5.809e-01   1.699  0.08941 .  
+## MTRANSWalking                     -1.886e-01  1.308e+00  -0.144  0.88538    
+## NObeyesdadNormal_Weight            2.185e+00  1.409e+00   1.551  0.12091    
+## NObeyesdadObesity_Type_I           6.333e-01  2.571e+00   0.246  0.80546    
+## NObeyesdadObesity_Type_II          2.280e+00  3.230e+00   0.706  0.48021    
+## NObeyesdadObesity_Type_III        -7.141e-01  3.872e+00  -0.184  0.85368    
+## NObeyesdadOverweight_Level_I       5.472e-01  1.820e+00   0.301  0.76365    
+## NObeyesdadOverweight_Level_II      1.568e+00  2.120e+00   0.740  0.45943    
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
 ## (Dispersion parameter for binomial family taken to be 1)
 ## 
-##     Null deviance: 293.18  on 1476  degrees of freedom
-## Residual deviance: 219.51  on 1448  degrees of freedom
-## AIC: 277.51
+##     Null deviance: 308.55  on 1476  degrees of freedom
+## Residual deviance: 223.24  on 1448  degrees of freedom
+## AIC: 281.24
 ## 
-## Number of Fisher Scoring iterations: 18</code></pre>
+## Number of Fisher Scoring iterations: 16</code></pre>
 <pre class="r"><code>#Se ejecuta la predicción con los datos modelados y set de pruebas
 pred.train &lt;- predict(model,datatest.set)
 pred.train &lt;- ifelse(pred.train &gt; 0.5,1,0)</code></pre>
@@ -524,7 +549,7 @@ hacer predicciones. <br> <br></p>
 <h5><strong>Accuracy:(Número de predicciones correctas/Número Datos
 Pruebas)<br></strong></h5>
 <pre class="r"><code>mean(pred.train==datatest.set$SMOKE)</code></pre>
-<pre><code>## [1] 0.9747634</code></pre>
+<pre><code>## [1] 0.9763407</code></pre>
 <p>El accuracy nos indica que el modelo predictivo tiene una precision
 del 97% para los datos de pruebas, lo cual nos ayuda determinar que el
 97% de las predicciones coinciden con los valores reales de variable
@@ -540,10 +565,10 @@ presicion&lt;- calPre_call[1,1]/(sum(calPre_call[1,]))
 recall&lt;- calPre_call[1,1]/(sum(calPre_call[,1]))
 #Imprime Precision
 presicion</code></pre>
-<pre><code>## [1] 0.9778481</code></pre>
+<pre><code>## [1] 0.9809826</code></pre>
 <pre class="r"><code>#Imprime Recall
 recall</code></pre>
-<pre><code>## [1] 0.9967742</code></pre>
+<pre><code>## [1] 0.9951768</code></pre>
 <p>Precisión dio como resultado 0.97 aproximadamente, lo que nos indica
 que el 97% de las predicciones positivas para la variable smoke = 1 , lo
 cual el modelo comete pocos falsos positivos. <br> Recall dio como
@@ -556,7 +581,7 @@ falsos negativos.<br> <br></p>
 <p>F1-CORE es una metrica combinada de precisión y recall<br></p>
 <pre class="r"><code>F1&lt;- 2*presicion*recall/(presicion+recall)
 F1</code></pre>
-<pre><code>## [1] 0.9872204</code></pre>
+<pre><code>## [1] 0.9880287</code></pre>
 <p><br> F1 tiene una como valor 0.98 por lo que nos indica que el hay un
 buen balance entre precisión y recall, lo que predice valores positivos
 lo que indica que no comete muchos errores en la clasificación, por lo
@@ -570,8 +595,8 @@ rendimiento del modelo de clasificación<br></p>
 <pre class="r"><code>table(Predicted = pred.train, Actual = datatest.set$SMOKE)</code></pre>
 <pre><code>##          Actual
 ## Predicted   0   1
-##         0 618  14
-##         1   2   0</code></pre>
+##         0 619  12
+##         1   3   0</code></pre>
 <ul>
 <li>Verdaderos Negativos(tn) En la matriz de confusión obtenemos los
 siguientes valores<br> El modelo predijo smoke = 0 cuando realmente era
@@ -936,9 +961,9 @@ el grado de obesidad, aunque tiene ligeras confusiones entre clases
 cercanas.<br></p>
 </div>
 </div>
-<div id="tecnica-de-clustering-para-segmentar-a-la-población-del-data-setjacob" class="section level2">
-<h2><strong>4. Tecnica de Clustering para Segmentar a la Población del
-Data Set</strong>(Jacob)</h2>
+<div id="técnica-de-clustering-para-segmentar-a-la-población-del-data-setmercedes" class="section level2">
+<h2><strong>4. Técnica de Clustering para Segmentar a la Población del
+Data Set</strong>(Mercedes)</h2>
 <p>##Conclusiones del Trabajo.</p>
 </div>
 
