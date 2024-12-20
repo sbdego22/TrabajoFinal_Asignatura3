@@ -11,7 +11,7 @@
 
 <meta name="author" content="Integrantes: Mercedes de la Torre Fuentes/Diego Alonso Solano Bolaños/Kattia Zúñiga Acosta / Ricardo Mir de Francia/Jaco Warris" />
 
-<meta name="date" content="2024-12-11" />
+<meta name="date" content="2024-12-20" />
 
 <title>Grupo 14_Trabajo_Final_Asignatura 3</title>
 
@@ -354,7 +354,7 @@ display: none;
 <h4 class="author">Integrantes: Mercedes de la Torre Fuentes/Diego
 Alonso Solano Bolaños/Kattia Zúñiga Acosta / Ricardo Mir de Francia/Jaco
 Warris</h4>
-<h4 class="date">2024-12-11</h4>
+<h4 class="date">2024-12-20</h4>
 
 </div>
 
@@ -1346,53 +1346,54 @@ dim(datatrain.set)</code></pre>
 dim(datatest.set)</code></pre>
 <pre><code>## [1] 634  17</code></pre>
 <pre class="r"><code>#Se procede a probar el modelo de regresión logistíca binaria con los datos para entrenamiento
-model &lt;- glm(SMOKE ~.,family=binomial(link=&#39;logit&#39;),data=datatrain.set) 
-summary(model)</code></pre>
+model &lt;- glm(SMOKE ~.,family=binomial(link=&#39;logit&#39;),data=datatrain.set) </code></pre>
+<pre><code>## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+<pre class="r"><code>summary(model)</code></pre>
 <pre><code>## 
 ## Call:
 ## glm(formula = SMOKE ~ ., family = binomial(link = &quot;logit&quot;), data = datatrain.set)
 ## 
 ## Coefficients:
-##                                     Estimate Std. Error z value Pr(&gt;|z|)   
-## (Intercept)                       -3.101e+01  2.400e+03  -0.013  0.98969   
-## GenderMale                        -8.871e-01  6.782e-01  -1.308  0.19087   
-## Age                                1.029e-01  3.255e-02   3.163  0.00156 **
-## Height                             3.896e+00  4.836e+00   0.806  0.42045   
-## Weight                            -4.296e-03  4.458e-02  -0.096  0.92324   
-## family_history_with_overweightyes  1.416e-01  6.022e-01   0.235  0.81406   
-## FAVCyes                           -7.344e-01  5.112e-01  -1.436  0.15087   
-## FCVC                               4.638e-01  4.071e-01   1.139  0.25458   
-## NCP                                2.749e-01  2.936e-01   0.936  0.34914   
-## CAECFrequently                     1.323e+00  1.102e+00   1.200  0.23008   
-## CAECno                             1.519e+00  1.535e+00   0.990  0.32226   
-## CAECSometimes                      4.698e-01  1.085e+00   0.433  0.66496   
-## CH2O                              -1.838e-01  3.279e-01  -0.561  0.57496   
-## SCCyes                             1.209e+00  7.244e-01   1.669  0.09515 . 
-## FAF                               -2.294e-01  2.562e-01  -0.895  0.37065   
-## TUE                                4.764e-01  3.177e-01   1.500  0.13371   
-## CALCFrequently                     1.547e+01  2.400e+03   0.006  0.99486   
-## CALCno                             1.320e+01  2.400e+03   0.006  0.99561   
-## CALCSometimes                      1.448e+01  2.400e+03   0.006  0.99519   
-## MTRANSBike                        -1.280e+01  1.219e+03  -0.011  0.99162   
-## MTRANSMotorbike                    2.476e+00  1.283e+00   1.930  0.05359 . 
-## MTRANSPublic_Transportation        8.048e-01  5.324e-01   1.512  0.13065   
-## MTRANSWalking                      2.051e+00  1.008e+00   2.034  0.04192 * 
-## NObeyesdadNormal_Weight            2.483e+00  1.271e+00   1.954  0.05075 . 
-## NObeyesdadObesity_Type_I           2.388e+00  2.201e+00   1.085  0.27794   
-## NObeyesdadObesity_Type_II          3.035e+00  2.840e+00   1.069  0.28518   
-## NObeyesdadObesity_Type_III        -3.195e-02  3.355e+00  -0.010  0.99240   
-## NObeyesdadOverweight_Level_I       1.097e-02  1.823e+00   0.006  0.99520   
-## NObeyesdadOverweight_Level_II      2.043e+00  1.806e+00   1.131  0.25803   
+##                                     Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)                       -4.958e+01  1.777e+04  -0.003 0.997774    
+## GenderMale                        -5.198e-01  7.807e-01  -0.666 0.505486    
+## Age                                8.680e-02  4.633e-02   1.874 0.060996 .  
+## Height                             3.743e+00  5.703e+00   0.656 0.511617    
+## Weight                            -1.728e-04  5.046e-02  -0.003 0.997267    
+## family_history_with_overweightyes  1.367e+00  8.973e-01   1.523 0.127741    
+## FAVCyes                           -1.385e+00  6.071e-01  -2.281 0.022548 *  
+## FCVC                               2.019e-01  4.297e-01   0.470 0.638508    
+## NCP                               -2.031e-01  2.849e-01  -0.713 0.475943    
+## CAECFrequently                     1.129e+00  1.282e+00   0.881 0.378555    
+## CAECno                            -1.571e+01  2.268e+03  -0.007 0.994473    
+## CAECSometimes                      2.057e-01  1.273e+00   0.162 0.871618    
+## CH2O                              -3.044e-01  3.825e-01  -0.796 0.426137    
+## SCCyes                             1.102e+00  8.757e-01   1.258 0.208447    
+## FAF                                1.910e-01  2.937e-01   0.651 0.515364    
+## TUE                                1.190e+00  3.463e-01   3.437 0.000589 ***
+## CALCFrequently                     1.919e+01  1.773e+04   0.001 0.999136    
+## CALCno                             1.777e+01  1.773e+04   0.001 0.999200    
+## CALCSometimes                      1.931e+01  1.773e+04   0.001 0.999131    
+## MTRANSBike                        -1.697e+01  8.062e+03  -0.002 0.998321    
+## MTRANSMotorbike                    3.997e+00  1.498e+00   2.669 0.007606 ** 
+## MTRANSPublic_Transportation        1.512e+00  7.559e-01   2.000 0.045498 *  
+## MTRANSWalking                      1.475e+00  1.101e+00   1.339 0.180416    
+## NObeyesdadNormal_Weight            1.661e+01  1.170e+03   0.014 0.988678    
+## NObeyesdadObesity_Type_I           1.603e+01  1.170e+03   0.014 0.989072    
+## NObeyesdadObesity_Type_II          1.710e+01  1.170e+03   0.015 0.988343    
+## NObeyesdadObesity_Type_III         1.447e+01  1.170e+03   0.012 0.990132    
+## NObeyesdadOverweight_Level_I       1.514e+01  1.170e+03   0.013 0.989676    
+## NObeyesdadOverweight_Level_II      1.579e+01  1.170e+03   0.013 0.989236    
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
 ## (Dispersion parameter for binomial family taken to be 1)
 ## 
-##     Null deviance: 316.14  on 1476  degrees of freedom
-## Residual deviance: 250.43  on 1448  degrees of freedom
-## AIC: 308.43
+##     Null deviance: 261.60  on 1476  degrees of freedom
+## Residual deviance: 199.04  on 1448  degrees of freedom
+## AIC: 257.04
 ## 
-## Number of Fisher Scoring iterations: 15</code></pre>
+## Number of Fisher Scoring iterations: 19</code></pre>
 <pre class="r"><code>#Se ejecuta la predicción con los datos modelados y set de pruebas
 pred.train &lt;- predict(model,datatest.set)
 pred.train &lt;- ifelse(pred.train &gt; 0.5,1,0)</code></pre>
@@ -1412,7 +1413,7 @@ modelo predictivo cuyas variables mas importantes son AGE para predecir.
 <h5><strong>Accuracy:(Número de predicciones correctas/Número Datos
 Pruebas)<br></strong></h5>
 <pre class="r"><code>mean(pred.train==datatest.set$SMOKE)</code></pre>
-<pre><code>## [1] 0.9794953</code></pre>
+<pre><code>## [1] 0.9716088</code></pre>
 <p>El accuracy nos indica que el modelo predictivo tiene una precision
 del 97% para los datos de pruebas, lo cual nos ayuda determinar que el
 97% de las predicciones coinciden con los valores reales de variable
@@ -1429,10 +1430,10 @@ presicion&lt;- calPre_call[1,1]/(sum(calPre_call[1,]))
 recall&lt;- calPre_call[1,1]/(sum(calPre_call[,1]))
 #Imprime Precision
 presicion</code></pre>
-<pre><code>## [1] 0.9825949</code></pre>
+<pre><code>## [1] 0.9716088</code></pre>
 <pre class="r"><code>#Imprime Recall
 recall</code></pre>
-<pre><code>## [1] 0.9967897</code></pre>
+<pre><code>## [1] 1</code></pre>
 <p>Precisión tiene un resultado 0.97 aproximadamente, lo que nos indica
 que el 97% de las predicciones positivas para la variable smoke = 0 , lo
 cual el modelo comete pocos falsos positivos. <br> Recall dio como
@@ -1446,7 +1447,7 @@ datos “No fumadores” / “Si Fumadores”<br> <br></p>
 <p>F1-CORE es una metrica combinada de precisión y recall<br></p>
 <pre class="r"><code>F1&lt;- 2*presicion*recall/(presicion+recall)
 F1</code></pre>
-<pre><code>## [1] 0.9896414</code></pre>
+<pre><code>## [1] 0.9856</code></pre>
 <p><br> F1 tiene una como valor 0.98 por lo que nos indica que el hay un
 buen balance entre precisión y recall, lo que predice la mayoria valores
 positivos lo que indica que no comete muchos errores en la
@@ -1462,8 +1463,7 @@ rendimiento del modelo de clasificación<br></p>
 <pre class="r"><code>table(Predicted = pred.train, Actual = datatest.set$SMOKE)</code></pre>
 <pre><code>##          Actual
 ## Predicted   0   1
-##         0 621  11
-##         1   2   0</code></pre>
+##         0 616  18</code></pre>
 <ul>
 <li>Verdaderos Negativos(tn) En la matriz de confusión obtenemos los
 siguientes valores<br> El modelo predijo smoke = 0 cuando realmente era
@@ -1499,20 +1499,507 @@ positivos, pero ningun caso positivo de si fumadores , por lo que modelo
 predictivo no es aplicable para predecir la variable “smoke”<br><br></p>
 </div>
 </div>
-<div id="modelo-predictivo-para-detectar-si-un-usuario-controla-o-no-las-calorías" class="section level2">
-<h2><strong>2.2 Modelo Predictivo para detectar si un usuario controla o
-no las calorías<br></strong></h2>
+<div id="modelo-predictivo-para-detectar-si-una-persona-controla-o-no-las-calorías" class="section level2">
+<h2><strong>2.2 Modelo Predictivo para detectar si una persona controla
+o no las calorías<br><br></strong></h2>
+<p>Realizar un modelo predictivo de clasificaciónbinaria para detectar
+si un usuario controla o no las calorías ingeridas.El análisis se
+apoyará sobre las mismas variables utilizadas previamente.<br></p>
+<div id="carga-y-lectura-de-los-datos" class="section level4">
+<h4><strong>2.2.1 Carga y lectura de los datos <br></strong></h4>
+<pre class="r"><code>dataset &lt;- read.csv(&quot;./data/obesity_data_set_preprocessed.csv&quot;, header = T, sep = &quot;;&quot;)
+
+str(dataset)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    2111 obs. of  23 variables:
+##  $ Gender                         : int  0 0 1 1 1 1 0 1 1 1 ...
+##  $ Age                            : int  21 21 23 27 22 29 23 22 24 22 ...
+##  $ Height                         : chr  &quot;1,62&quot; &quot;1,52&quot; &quot;1,80&quot; &quot;1,80&quot; ...
+##  $ Weight                         : int  64 56 77 87 90 53 55 53 64 68 ...
+##  $ BMI                            : chr  &quot;24,3865264441396&quot; &quot;24,2382271468144&quot; &quot;23,7654320987654&quot; &quot;26,8518518518519&quot; ...
+##  $ Weight_Class_Mendoza_De_La_Hoz : int  1 1 1 2 3 1 1 1 1 1 ...
+##  $ Weight_Class_WHO               : int  1 1 1 2 2 1 1 1 1 1 ...
+##  $ Overweight_Family              : int  1 1 1 0 0 0 1 0 1 1 ...
+##  $ High_Caloric_Consumption       : int  0 0 0 0 0 1 1 0 1 1 ...
+##  $ Vegetable_Consumption          : int  1 2 1 2 1 1 2 1 2 1 ...
+##  $ Main_Meals                     : int  2 2 2 2 0 2 2 2 2 2 ...
+##  $ Between_Meals                  : int  1 1 1 1 1 1 1 1 1 1 ...
+##  $ Smoker                         : int  0 1 0 0 0 0 0 0 0 0 ...
+##  $ Water_Consumption              : int  1 2 1 1 1 1 1 1 1 1 ...
+##  $ Calory_Monitoring              : int  0 1 0 0 0 0 0 0 0 0 ...
+##  $ Physical_Activity              : int  0 3 2 2 0 0 1 3 1 1 ...
+##  $ Tech_Devices_Use               : int  1 0 1 0 0 0 0 0 1 1 ...
+##  $ Alcohol_Consumption            : int  0 1 2 2 1 1 1 1 2 0 ...
+##  $ Transport_Mean_Automobile      : int  0 0 0 0 0 1 0 0 0 0 ...
+##  $ Transport_Mean_Motorbike       : int  0 0 0 0 0 0 1 0 0 0 ...
+##  $ Transport_Mean_Bike            : int  0 0 0 0 0 0 0 0 0 0 ...
+##  $ Transport_Mean_Public_Transport: int  1 1 1 0 1 0 0 1 1 1 ...
+##  $ Transport_Mean_Foot            : int  0 0 0 1 0 0 0 0 0 0 ...</code></pre>
+<pre class="r"><code>head(dataset)</code></pre>
+<pre><code>##   Gender Age Height Weight              BMI Weight_Class_Mendoza_De_La_Hoz
+## 1      0  21   1,62     64 24,3865264441396                              1
+## 2      0  21   1,52     56 24,2382271468144                              1
+## 3      1  23   1,80     77 23,7654320987654                              1
+## 4      1  27   1,80     87 26,8518518518519                              2
+## 5      1  22   1,78     90 28,4055043555107                              3
+## 6      1  29   1,62     53 20,1950922115531                              1
+##   Weight_Class_WHO Overweight_Family High_Caloric_Consumption
+## 1                1                 1                        0
+## 2                1                 1                        0
+## 3                1                 1                        0
+## 4                2                 0                        0
+## 5                2                 0                        0
+## 6                1                 0                        1
+##   Vegetable_Consumption Main_Meals Between_Meals Smoker Water_Consumption
+## 1                     1          2             1      0                 1
+## 2                     2          2             1      1                 2
+## 3                     1          2             1      0                 1
+## 4                     2          2             1      0                 1
+## 5                     1          0             1      0                 1
+## 6                     1          2             1      0                 1
+##   Calory_Monitoring Physical_Activity Tech_Devices_Use Alcohol_Consumption
+## 1                 0                 0                1                   0
+## 2                 1                 3                0                   1
+## 3                 0                 2                1                   2
+## 4                 0                 2                0                   2
+## 5                 0                 0                0                   1
+## 6                 0                 0                0                   1
+##   Transport_Mean_Automobile Transport_Mean_Motorbike Transport_Mean_Bike
+## 1                         0                        0                   0
+## 2                         0                        0                   0
+## 3                         0                        0                   0
+## 4                         0                        0                   0
+## 5                         0                        0                   0
+## 6                         1                        0                   0
+##   Transport_Mean_Public_Transport Transport_Mean_Foot
+## 1                               1                   0
+## 2                               1                   0
+## 3                               1                   0
+## 4                               0                   1
+## 5                               1                   0
+## 6                               0                   0</code></pre>
+</div>
+<div id="cambio-de-formato-para-convertir-la-coma-en-punto-y-transformar-la-columnas-a-numérico" class="section level4">
+<h4><strong>2.2.2 Cambio de formato para convertir la coma en punto y
+transformar la columnaS a numérico</strong><br></h4>
+<pre class="r"><code>dataset$Height &lt;- as.numeric(gsub(&quot;,&quot;, &quot;.&quot;, dataset$Height))
+dataset$BMI &lt;- as.numeric(gsub(&quot;,&quot;, &quot;.&quot;, dataset$BMI))
+
+str(dataset)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    2111 obs. of  23 variables:
+##  $ Gender                         : int  0 0 1 1 1 1 0 1 1 1 ...
+##  $ Age                            : int  21 21 23 27 22 29 23 22 24 22 ...
+##  $ Height                         : num  1.62 1.52 1.8 1.8 1.78 1.62 1.5 1.64 1.78 1.72 ...
+##  $ Weight                         : int  64 56 77 87 90 53 55 53 64 68 ...
+##  $ BMI                            : num  24.4 24.2 23.8 26.9 28.4 ...
+##  $ Weight_Class_Mendoza_De_La_Hoz : int  1 1 1 2 3 1 1 1 1 1 ...
+##  $ Weight_Class_WHO               : int  1 1 1 2 2 1 1 1 1 1 ...
+##  $ Overweight_Family              : int  1 1 1 0 0 0 1 0 1 1 ...
+##  $ High_Caloric_Consumption       : int  0 0 0 0 0 1 1 0 1 1 ...
+##  $ Vegetable_Consumption          : int  1 2 1 2 1 1 2 1 2 1 ...
+##  $ Main_Meals                     : int  2 2 2 2 0 2 2 2 2 2 ...
+##  $ Between_Meals                  : int  1 1 1 1 1 1 1 1 1 1 ...
+##  $ Smoker                         : int  0 1 0 0 0 0 0 0 0 0 ...
+##  $ Water_Consumption              : int  1 2 1 1 1 1 1 1 1 1 ...
+##  $ Calory_Monitoring              : int  0 1 0 0 0 0 0 0 0 0 ...
+##  $ Physical_Activity              : int  0 3 2 2 0 0 1 3 1 1 ...
+##  $ Tech_Devices_Use               : int  1 0 1 0 0 0 0 0 1 1 ...
+##  $ Alcohol_Consumption            : int  0 1 2 2 1 1 1 1 2 0 ...
+##  $ Transport_Mean_Automobile      : int  0 0 0 0 0 1 0 0 0 0 ...
+##  $ Transport_Mean_Motorbike       : int  0 0 0 0 0 0 1 0 0 0 ...
+##  $ Transport_Mean_Bike            : int  0 0 0 0 0 0 0 0 0 0 ...
+##  $ Transport_Mean_Public_Transport: int  1 1 1 0 1 0 0 1 1 1 ...
+##  $ Transport_Mean_Foot            : int  0 0 0 1 0 0 0 0 0 0 ...</code></pre>
+<pre class="r"><code>summary(dataset)</code></pre>
+<pre><code>##      Gender            Age            Height          Weight      
+##  Min.   :0.0000   Min.   :14.00   Min.   :1.450   Min.   : 39.00  
+##  1st Qu.:0.0000   1st Qu.:20.00   1st Qu.:1.630   1st Qu.: 65.50  
+##  Median :1.0000   Median :23.00   Median :1.700   Median : 83.00  
+##  Mean   :0.5059   Mean   :24.32   Mean   :1.702   Mean   : 86.59  
+##  3rd Qu.:1.0000   3rd Qu.:26.00   3rd Qu.:1.770   3rd Qu.:107.00  
+##  Max.   :1.0000   Max.   :61.00   Max.   :1.980   Max.   :173.00  
+##       BMI        Weight_Class_Mendoza_De_La_Hoz Weight_Class_WHO
+##  Min.   :13.14   Min.   :0.000                  Min.   :0.000   
+##  1st Qu.:24.33   1st Qu.:1.000                  1st Qu.:1.000   
+##  Median :28.73   Median :3.000                  Median :2.000   
+##  Mean   :29.70   Mean   :3.112                  Mean   :2.476   
+##  3rd Qu.:35.98   3rd Qu.:5.000                  3rd Qu.:4.000   
+##  Max.   :50.79   Max.   :6.000                  Max.   :5.000   
+##  Overweight_Family High_Caloric_Consumption Vegetable_Consumption
+##  Min.   :0.0000    Min.   :0.0000           Min.   :0.000        
+##  1st Qu.:1.0000    1st Qu.:1.0000           1st Qu.:1.000        
+##  Median :1.0000    Median :1.0000           Median :2.000        
+##  Mean   :0.8176    Mean   :0.8839           Mean   :1.685        
+##  3rd Qu.:1.0000    3rd Qu.:1.0000           3rd Qu.:2.000        
+##  Max.   :1.0000    Max.   :1.0000           Max.   :2.000        
+##    Main_Meals    Between_Meals       Smoker        Water_Consumption
+##  Min.   :0.000   Min.   :0.000   Min.   :0.00000   Min.   :0.000    
+##  1st Qu.:2.000   1st Qu.:1.000   1st Qu.:0.00000   1st Qu.:1.000    
+##  Median :2.000   Median :1.000   Median :0.00000   Median :1.000    
+##  Mean   :1.688   Mean   :1.141   Mean   :0.02084   Mean   :1.015    
+##  3rd Qu.:2.000   3rd Qu.:1.000   3rd Qu.:0.00000   3rd Qu.:1.000    
+##  Max.   :3.000   Max.   :3.000   Max.   :1.00000   Max.   :2.000    
+##  Calory_Monitoring Physical_Activity Tech_Devices_Use Alcohol_Consumption
+##  Min.   :0.00000   Min.   :0.000     Min.   :0.0000   Min.   :0.0000     
+##  1st Qu.:0.00000   1st Qu.:0.000     1st Qu.:0.0000   1st Qu.:0.0000     
+##  Median :0.00000   Median :1.000     Median :1.0000   Median :1.0000     
+##  Mean   :0.04548   Mean   :1.007     Mean   :0.6646   Mean   :0.7309     
+##  3rd Qu.:0.00000   3rd Qu.:2.000     3rd Qu.:1.0000   3rd Qu.:1.0000     
+##  Max.   :1.00000   Max.   :3.000     Max.   :2.0000   Max.   :2.0000     
+##  Transport_Mean_Automobile Transport_Mean_Motorbike Transport_Mean_Bike
+##  Min.   :0.0000            Min.   :0.000000         Min.   :0.000000   
+##  1st Qu.:0.0000            1st Qu.:0.000000         1st Qu.:0.000000   
+##  Median :0.0000            Median :0.000000         Median :0.000000   
+##  Mean   :0.2165            Mean   :0.005211         Mean   :0.003316   
+##  3rd Qu.:0.0000            3rd Qu.:0.000000         3rd Qu.:0.000000   
+##  Max.   :1.0000            Max.   :1.000000         Max.   :1.000000   
+##  Transport_Mean_Public_Transport Transport_Mean_Foot
+##  Min.   :0.0000                  Min.   :0.00000    
+##  1st Qu.:0.0000                  1st Qu.:0.00000    
+##  Median :1.0000                  Median :0.00000    
+##  Mean   :0.7485                  Mean   :0.02653    
+##  3rd Qu.:1.0000                  3rd Qu.:0.00000    
+##  Max.   :1.0000                  Max.   :1.00000</code></pre>
+</div>
+<div id="convertimos-la-variable-objetivo-calory_monitoring" class="section level4">
+<h4><strong>2.2.3 Convertimos la variable objetivo
+–Calory_Monitoring–</strong><br></h4>
+<p>Se debe convertir la variable –Calory_Monitoring– a factor para
+asegurarnos que R entiende que se trata de un problema de
+clasificación.<br></p>
+<pre class="r"><code>dataset$Calory_Monitoring &lt;- as.factor(dataset$Calory_Monitoring)</code></pre>
+</div>
+<div id="seleccionamos-los-datos-de-entrenamiento-y-prueba-para-la-variable-objetio-calory_monitoring" class="section level4">
+<h4><strong>2.2.4 Seleccionamos los datos de entrenamiento y Prueba para
+la variable objetio –Calory_Monitoring–</strong><br></h4>
+<p>Dividimos los datos para su entrenamiento (80%) y prueba (20%). La
+variable objetivo será Calory_Monitoring.<br></p>
+<pre class="r"><code>set.seed(42)  # Semilla para reproducibilidad
+
+train_index &lt;- createDataPartition(dataset$Calory_Monitoring, p = 0.8, list = FALSE)
+
+train_data &lt;- dataset[train_index, ]  # 80% Datos para entrenamiento
+test_data &lt;- dataset[-train_index, ]  # 20% Datos para prueba
+
+dim(train_data)</code></pre>
+<pre><code>## [1] 1689   23</code></pre>
+<pre class="r"><code>dim(test_data)</code></pre>
+<pre><code>## [1] 422  23</code></pre>
+</div>
+<div id="selecciona-el-modelo-de-regresión-logística-binomial-para-el-estudio-del-variable-calory_monitoring" class="section level4">
+<h4><strong>2.2.5 Selecciona el modelo de regresión logística binomial
+para el estudio del variable Calory_Monitoring </strong><br></h4>
+<p>Utilizamos un modelo de regresión logística para predecir si la
+persona controla las calorías. <br> Utilizamos todas las variables del
+dataset como predictoras para cruzarlas con nuestra variable
+objetivo<br></p>
+<pre class="r"><code>model &lt;- glm(
+  Calory_Monitoring ~ .,       # Variable objetivo y todas las predictoras
+  family = binomial(link = &#39;logit&#39;), 
+  data = train_data
+)
+summary (model)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = Calory_Monitoring ~ ., family = binomial(link = &quot;logit&quot;), 
+##     data = train_data)
+## 
+## Coefficients: (1 not defined because of singularities)
+##                                   Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)                      6.3184829 11.3983426   0.554 0.579351    
+## Gender                          -0.6237349  0.3922672  -1.590 0.111818    
+## Age                             -0.1791612  0.0454173  -3.945 7.99e-05 ***
+## Height                          -2.8698316  6.4615449  -0.444 0.656941    
+## Weight                          -0.0327553  0.0773348  -0.424 0.671893    
+## BMI                              0.0222820  0.2643307   0.084 0.932821    
+## Weight_Class_Mendoza_De_La_Hoz  -1.5831246  0.5015296  -3.157 0.001596 ** 
+## Weight_Class_WHO                 1.9846979  0.5823373   3.408 0.000654 ***
+## Overweight_Family               -0.1888727  0.3289364  -0.574 0.565838    
+## High_Caloric_Consumption        -1.2811389  0.3072207  -4.170 3.04e-05 ***
+## Vegetable_Consumption            0.6716164  0.2924242   2.297 0.021635 *  
+## Main_Meals                      -0.1533192  0.1490850  -1.028 0.303761    
+## Between_Meals                    0.1995545  0.2152311   0.927 0.353841    
+## Smoker                           0.5896717  0.8158958   0.723 0.469846    
+## Water_Consumption                0.3442065  0.2057269   1.673 0.094303 .  
+## Physical_Activity                0.2786065  0.1571442   1.773 0.076239 .  
+## Tech_Devices_Use                 0.0001274  0.1979963   0.001 0.999487    
+## Alcohol_Consumption              0.1908300  0.2458158   0.776 0.437564    
+## Transport_Mean_Automobile        1.1725964  0.7034415   1.667 0.095526 .  
+## Transport_Mean_Motorbike         1.4862042  1.3269224   1.120 0.262697    
+## Transport_Mean_Bike              1.4342050  1.2788060   1.122 0.262067    
+## Transport_Mean_Public_Transport  0.1954436  0.6013344   0.325 0.745169    
+## Transport_Mean_Foot                     NA         NA      NA       NA    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 626.00  on 1688  degrees of freedom
+## Residual deviance: 460.88  on 1667  degrees of freedom
+## AIC: 504.88
+## 
+## Number of Fisher Scoring iterations: 8</code></pre>
+<pre class="r"><code>str(dataset)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    2111 obs. of  23 variables:
+##  $ Gender                         : int  0 0 1 1 1 1 0 1 1 1 ...
+##  $ Age                            : int  21 21 23 27 22 29 23 22 24 22 ...
+##  $ Height                         : num  1.62 1.52 1.8 1.8 1.78 1.62 1.5 1.64 1.78 1.72 ...
+##  $ Weight                         : int  64 56 77 87 90 53 55 53 64 68 ...
+##  $ BMI                            : num  24.4 24.2 23.8 26.9 28.4 ...
+##  $ Weight_Class_Mendoza_De_La_Hoz : int  1 1 1 2 3 1 1 1 1 1 ...
+##  $ Weight_Class_WHO               : int  1 1 1 2 2 1 1 1 1 1 ...
+##  $ Overweight_Family              : int  1 1 1 0 0 0 1 0 1 1 ...
+##  $ High_Caloric_Consumption       : int  0 0 0 0 0 1 1 0 1 1 ...
+##  $ Vegetable_Consumption          : int  1 2 1 2 1 1 2 1 2 1 ...
+##  $ Main_Meals                     : int  2 2 2 2 0 2 2 2 2 2 ...
+##  $ Between_Meals                  : int  1 1 1 1 1 1 1 1 1 1 ...
+##  $ Smoker                         : int  0 1 0 0 0 0 0 0 0 0 ...
+##  $ Water_Consumption              : int  1 2 1 1 1 1 1 1 1 1 ...
+##  $ Calory_Monitoring              : Factor w/ 2 levels &quot;0&quot;,&quot;1&quot;: 1 2 1 1 1 1 1 1 1 1 ...
+##  $ Physical_Activity              : int  0 3 2 2 0 0 1 3 1 1 ...
+##  $ Tech_Devices_Use               : int  1 0 1 0 0 0 0 0 1 1 ...
+##  $ Alcohol_Consumption            : int  0 1 2 2 1 1 1 1 2 0 ...
+##  $ Transport_Mean_Automobile      : int  0 0 0 0 0 1 0 0 0 0 ...
+##  $ Transport_Mean_Motorbike       : int  0 0 0 0 0 0 1 0 0 0 ...
+##  $ Transport_Mean_Bike            : int  0 0 0 0 0 0 0 0 0 0 ...
+##  $ Transport_Mean_Public_Transport: int  1 1 1 0 1 0 0 1 1 1 ...
+##  $ Transport_Mean_Foot            : int  0 0 0 1 0 0 0 0 0 0 ...</code></pre>
+<pre class="r"><code>print(model)</code></pre>
+<pre><code>## 
+## Call:  glm(formula = Calory_Monitoring ~ ., family = binomial(link = &quot;logit&quot;), 
+##     data = train_data)
+## 
+## Coefficients:
+##                     (Intercept)                           Gender  
+##                       6.3184829                       -0.6237349  
+##                             Age                           Height  
+##                      -0.1791612                       -2.8698316  
+##                          Weight                              BMI  
+##                      -0.0327553                        0.0222820  
+##  Weight_Class_Mendoza_De_La_Hoz                 Weight_Class_WHO  
+##                      -1.5831246                        1.9846979  
+##               Overweight_Family         High_Caloric_Consumption  
+##                      -0.1888727                       -1.2811389  
+##           Vegetable_Consumption                       Main_Meals  
+##                       0.6716164                       -0.1533192  
+##                   Between_Meals                           Smoker  
+##                       0.1995545                        0.5896717  
+##               Water_Consumption                Physical_Activity  
+##                       0.3442065                        0.2786065  
+##                Tech_Devices_Use              Alcohol_Consumption  
+##                       0.0001274                        0.1908300  
+##       Transport_Mean_Automobile         Transport_Mean_Motorbike  
+##                       1.1725964                        1.4862042  
+##             Transport_Mean_Bike  Transport_Mean_Public_Transport  
+##                       1.4342050                        0.1954436  
+##             Transport_Mean_Foot  
+##                              NA  
+## 
+## Degrees of Freedom: 1688 Total (i.e. Null);  1667 Residual
+## Null Deviance:       626 
+## Residual Deviance: 460.9     AIC: 504.9</code></pre>
+</div>
+<div id="evaluación-del-modelo-de-regresión-logística" class="section level4">
+<h4><strong>2.2.6 Evaluación del Modelo de Regresión Logística
+</strong><br></h4>
+</div>
+<div id="resultado-del-sumario" class="section level4">
+<h4><strong>——–Resultado del sumario</strong><br></h4>
+<pre class="r"><code> glm(formula = Calory_Monitoring ~ ., family = binomial(link = &quot;logit&quot;), 
+      data = train_data)</code></pre>
+<pre><code>## 
+## Call:  glm(formula = Calory_Monitoring ~ ., family = binomial(link = &quot;logit&quot;), 
+##     data = train_data)
+## 
+## Coefficients:
+##                     (Intercept)                           Gender  
+##                       6.3184829                       -0.6237349  
+##                             Age                           Height  
+##                      -0.1791612                       -2.8698316  
+##                          Weight                              BMI  
+##                      -0.0327553                        0.0222820  
+##  Weight_Class_Mendoza_De_La_Hoz                 Weight_Class_WHO  
+##                      -1.5831246                        1.9846979  
+##               Overweight_Family         High_Caloric_Consumption  
+##                      -0.1888727                       -1.2811389  
+##           Vegetable_Consumption                       Main_Meals  
+##                       0.6716164                       -0.1533192  
+##                   Between_Meals                           Smoker  
+##                       0.1995545                        0.5896717  
+##               Water_Consumption                Physical_Activity  
+##                       0.3442065                        0.2786065  
+##                Tech_Devices_Use              Alcohol_Consumption  
+##                       0.0001274                        0.1908300  
+##       Transport_Mean_Automobile         Transport_Mean_Motorbike  
+##                       1.1725964                        1.4862042  
+##             Transport_Mean_Bike  Transport_Mean_Public_Transport  
+##                       1.4342050                        0.1954436  
+##             Transport_Mean_Foot  
+##                              NA  
+## 
+## Degrees of Freedom: 1688 Total (i.e. Null);  1667 Residual
+## Null Deviance:       626 
+## Residual Deviance: 460.9     AIC: 504.9</code></pre>
+<p>De estos resultados se deduce a priori que las variables
+#High_Caloric_Consumption, Vegetable_Consumption, Weight_Class_WHO y Age
+tienen un impacto significatvo a la hora de predecir si se controla la
+ingesta de calorías. Todos ellos tiene p-valores muy bajos,
+(&lt;0.01)<br></p>
+</div>
+<div id="ejecutamos-las-prediciones-para-la-comprobar-patrones" class="section level4">
+<h4><strong>2.2.6 Ejecutamos las prediciones para la comprobar
+patrones</strong><br></h4>
+<p>Hacemos las predicciones en el conjunto de prueba para comprobar si
+nuestro modelo está generalizando bien los patrones aprendidos.<br></p>
+<pre class="r"><code>predictions &lt;- predict(model, newdata = dataset[-train_index, ], type = &quot;response&quot;)</code></pre>
+</div>
+<div id="convertimos-probabilidades-en-clases-binarias-umbral-0.5" class="section level4">
+<h4><strong>2.2.7 Convertimos probabilidades en clases binarias (umbral
+= 0.5)</strong><br></h4>
+<pre class="r"><code>predicted_classes &lt;- ifelse(predictions &gt; 0.5, 1, 0)
+
+head(predictions)</code></pre>
+<pre><code>##           8          23          32          43          49          50 
+## 0.152145879 0.157282268 0.007977952 0.008436369 0.223337457 0.065943801</code></pre>
+<pre class="r"><code>head(predicted_classes)</code></pre>
+<pre><code>##  8 23 32 43 49 50 
+##  0  0  0  0  0  0</code></pre>
+</div>
+<div id="análisis-del-rendimiento-de-nuestro-modelo-mediante-el-cálculo-de-métricas" class="section level4">
+<h4><strong>2.2.8 Análisis del rendimiento de nuestro modelo mediante el
+cálculo de métricas</strong><br></h4>
+<p>Ejecuta el estudio de la matriz de confusión, precisión, recall y
+FI-Score para ver como se comporta todo el conjunto (o datos) de
+prueba<br></p>
+</div>
+<div id="matriz-de-confusión-1" class="section level4">
+<h4><strong>Matriz de confusión</strong><br></h4>
+<pre class="r"><code>confusion_matrix &lt;- table(Predicted = predicted_classes, Actual = dataset$Calory_Monitoring[-train_index])
+print(confusion_matrix)</code></pre>
+<pre><code>##          Actual
+## Predicted   0   1
+##         0 402  18
+##         1   1   1</code></pre>
+<div id="interpretación-del-resultado" class="section level5">
+<h5>Interpretación del resultado:<br></h5>
+<p>El modelo es capaz de predecir con un elevado grado de precisión (403
+de un total de 422 observaciones en el conjunto de prueba) los ‘true
+negatives’, en este caso, aquellos que no controlan las calorías (0),
+pero arroja 19 falsos negativos y no es capaz de predecir nunca la clase
+1, aquellos que controlan las calorías. Podría deberse a un umbral de
+clasificación demasiado alto o a un sesgo del modelo hacia la clase
+0.<br></p>
+</div>
+</div>
+<div id="cálculo-de-la-precisión-o-accuracy" class="section level4">
+<h4><strong>Cálculo de la precisión o accuracy</strong><br></h4>
+<pre class="r"><code>accuracy &lt;- sum(diag(confusion_matrix)) / sum(confusion_matrix)
+cat(&quot;Precisión del modelo:&quot;, round(accuracy, 4), &quot;\n&quot;)</code></pre>
+<pre><code>## Precisión del modelo: 0.955</code></pre>
+<div id="interpretación-del-resultado-1" class="section level5">
+<h5>Interpretación del resultado:<br></h5>
+<p>la precisión arroja un valor de 0.955, lo que significa que significa
+que el modelo clasifica correctamente el 95% de las observaciones en el
+conjunto de prueba, lo cual es un buen desempeño a falta de evaluar
+otras métricas<br></p>
+</div>
+</div>
+<div id="matriz-de-confusión-con-el-umbral-rebajado-a-0.4" class="section level4">
+<h4><strong>Matriz de confusión con el umbral rebajado a
+0.4</strong><br></h4>
+<pre class="r"><code>predicted_classes &lt;- ifelse(predictions &gt; 0.4, 1, 0)
+confusion_matrix &lt;- table(Predicted = predicted_classes, Actual = dataset$Calory_Monitoring[-train_index])
+print(confusion_matrix)</code></pre>
+<pre><code>##          Actual
+## Predicted   0   1
+##         0 401  17
+##         1   2   2</code></pre>
+</div>
+<div id="existe-un-desbalance-de-clases-con-la-subrepresentación-de-la-clase-1" class="section level4">
+<h4><strong>¿Existe un desbalance de clases con la subrepresentación de
+la clase 1?</strong><br></h4>
+<pre class="r"><code>table(dataset$Calory_Monitoring)</code></pre>
+<pre><code>## 
+##    0    1 
+## 2015   96</code></pre>
+</div>
+<div id="recall" class="section level4">
+<h4><strong>Recall</strong><br></h4>
+<pre class="r"><code>TP &lt;- confusion_matrix[&quot;1&quot;, &quot;1&quot;]  # True Positives
+FN &lt;- confusion_matrix[&quot;0&quot;, &quot;1&quot;]  # False Negatives
+recall &lt;- TP / (TP + FN)
+cat(&quot;Recall:&quot;, round(recall, 4), &quot;\n&quot;)</code></pre>
+<pre><code>## Recall: 0.1053</code></pre>
+<p>El recall arroja un valor de 0, lo que significa que el modelo no es
+capaz de capturar correctamente la clase 1, aquellos que controlan las
+calorías.</p>
+</div>
+<div id="validación-y-prueba-con-modelo-randomforest" class="section level4">
+<h4><strong>2.2.9 Validación y Prueba con modelo
+RandomForest</strong><br></h4>
+<p>Dado que nuestro modelo de regresión logística sigue dando problemas,
+probaremos con un modelo más robusto frente al balance de clases. este
+caso<br></p>
+<pre class="r"><code>library(randomForest)
+rf_model &lt;- randomForest(Calory_Monitoring ~ ., data = train_data, ntree = 100)
+rf_predictions &lt;- predict(rf_model, test_data)
+rf_confusion &lt;- table(Predicted = rf_predictions, Actual = dataset$Calory_Monitoring[-train_index])</code></pre>
+</div>
+<div id="matriz-de-confusión-con-randomforest" class="section level4">
+<h4><strong>Matriz de confusión con RandomForest</strong><br></h4>
+<pre class="r"><code>print(rf_confusion)</code></pre>
+<pre><code>##          Actual
+## Predicted   0   1
+##         0 403  12
+##         1   0   7</code></pre>
+</div>
+<div id="cálculo-del-accuracy-con-el-nuevo-modelo-rforest" class="section level4">
+<h4><strong>Cálculo del Accuracy con el nuevo modelo
+RForest</strong><br></h4>
+<pre class="r"><code>accuracy &lt;- (TP + FN) / sum(confusion_matrix)
+cat(&quot;Precisión (Accuracy):&quot;, round(accuracy, 4), &quot;\n&quot;)</code></pre>
+<pre><code>## Precisión (Accuracy): 0.045</code></pre>
+</div>
+<div id="cálculo-del-recall" class="section level4">
+<h4><strong>Cálculo del Recall</strong><br></h4>
+<pre class="r"><code>recall &lt;- TP / (TP + FN)
+cat(&quot;Recall:&quot;, round(recall, 4), &quot;\n&quot;)</code></pre>
+<pre><code>## Recall: 0.1053</code></pre>
+</div>
+<div id="cálculo-de-la-precisión" class="section level4">
+<h4><strong>Cálculo de la precisión</strong><br></h4>
+<pre class="r"><code>precision &lt;- TP / (TP + FN)
+cat(&quot;Precision:&quot;, round(precision, 4), &quot;\n&quot;)</code></pre>
+<pre><code>## Precision: 0.1053</code></pre>
+</div>
+<div id="cálculo-del-f1-score" class="section level4">
+<h4><strong>Cálculo del F1-Score</strong><br></h4>
+<pre class="r"><code>f1_score &lt;- 2 * (precision * recall) / (precision + recall)
+cat(&quot;F1-Score:&quot;, round(f1_score, 4), &quot;\n&quot;)</code></pre>
+<pre><code>## F1-Score: 0.1053</code></pre>
+<div id="conclusión-del-modelo-predictivo-si-una-persona-controla-o-no-las-calorías" class="section level5">
+<h5><strong>Conclusión del Modelo Predictivo si una persona controla o
+no las calorías</strong><br></h5>
+<p>De los resultados obtenidos al calcular las métricas clave para
+analizar este modelo predictivo se deduce que es modelo es mejorable.
+Sus fortalezas estriban en que es capaz de clasificar con una alta
+precisión el total de las observaciones (Accuracy: 97.16%) y nunca se
+equivoca a la hora de predecir quién controla las calorías
+(Precision:100%). Por el contrario, tiene también serias deficiencias.
+Su bajo Recall (36.8%) indica que solo identifica correctamente cuatro
+de cada diez casos reales de la clase 1, o lo que es lo mismo, de
+aquellas personas que sí controlan las calorías. De todo ello ser deriva
+también un sesgo hacia la clase mayoritaria o clase 0, esa mayoría que
+no controla la ingesta de calorías.<br></p>
+</div>
+</div>
 </div>
 <div id="modelos-predictivos-de-clasificación-multiclase" class="section level2">
 <h2><strong>3.Modelos Predictivos de Clasificación
 Multiclase<br></strong></h2>
 <div id="cargar-los-datos-desde-el-archivo" class="section level4">
 <h4><strong>3.1 Cargar los datos desde el archivo <br></strong></h4>
-<p>getwd() file_path &lt;-
-“/Volumes/KINGSTON/MAESTRIA_BIGDATA/TECNICAS_ANALISIS_ ASIG3/Cuadernos
-<em>Data/obesity_data_set_preprocessed.csv”
-file.exists(“/Volumes/KINGSTON/MAESTRIA_BIGDATA/TECNICAS_ANALISIS</em>
-ASIG3/Cuadernos _Data/obesity_data_set_preprocessed.csv”) data &lt;-
+<p>getwd() file_path &lt;- “./data/obesity_data_set_preprocessed.csv”
+file.exists(“./data/obesity_data_set_preprocessed.csv”) data &lt;-
 read.csv(file_path, sep = “;”, header = TRUE, stringsAsFactors =
 FALSE)</p>
 </div>
@@ -1619,7 +2106,7 @@ preProcess(data[, continuas], method = c(“center”, “scale”)) data[,
 continuas] &lt;- predict(preproc, data[, continuas]) summary(data)</p>
 </div>
 <div id="resultado-3" class="section level4">
-<h4>** Resultado —————————————————————**</h4>
+<h4>** Resultado —————————————————————**<br></h4>
 <p>Gender Age Height Weight BMI Weight_Class_Mendoza_De_La_Hoz 0:1043
 Min. :-1.6228 Min. :-2.69492 Min. :-1.8170 Min. :-7.2700 Min.
 :0.000<br />
@@ -1783,10 +2270,9 @@ print(conf_rf)<br></p>
 <pre><code>           Accuracy : 0.969           
              95% CI : (0.9477, 0.9834)
 No Information Rate : 0.269           
-P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+P-Value [Acc &gt; NIR] : &lt; 2.2e-16  &lt;br&gt;     
                                       
-                      
-                                      </code></pre>
+                      </code></pre>
 </div>
 <div id="conclusiones-predicion-multiclase" class="section level3">
 <h3><strong>Conclusiones Predicion Multiclase:<br></strong></h3>
@@ -2086,6 +2572,17 @@ clusters es una segmentación adecuada.<br></p>
 </div>
 <div id="conclusiones-del-trabajo." class="section level2">
 <h2><strong>Conclusiones del Trabajo.</strong><br><br></h2>
+<p>Es evidente la importancia que tiene la recolección, preprocesamiento
+y procesamiento de los datos para desarrollar cualquier proyecto
+análisis de datos o aprendizaje automático entre otros, siempre debemos
+procurar asegurar que estamos seleccionando datos de calidad, altamente
+confiables y relevantes para el tema que deseamos resolver. <br> Según
+el conjunto de datos o variables que seleccionemos en esos primeros
+pasos del análisis de la información, nos abrirá el camino para
+garantizar el modelado de datos correcto, que técnicas de aprendizaje
+supervisado o no supervisado aplicar así como sus métricas de desempeño
+que garantice que nuestras variables de estudio tengan una respuesta lo
+más precisa y confiable posible.<br></p>
 </div>
 </div>
 </div>

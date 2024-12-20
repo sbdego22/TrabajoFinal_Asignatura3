@@ -1,7 +1,7 @@
 ---
 title: "Grupo 14_Trabajo_Final_Asignatura 3"
-author: "Integrantes: Mercedes de la Torre Fuentes/Diego Alonso Solano Bolaños/Kattia Zúñiga Acosta / Ricardo Mir de Francia/Jaco Warris"
-date: "2024-12-11"
+author: "Integrantes: Mercedes de la Torre Fuentes_Diego Alonso Solano Bolaños_Kattia Zúñiga Acosta_Ricardo Mir de Francia_Jacob Warris"
+date: "2024-12-20"
 output: html_document
 ---
 
@@ -16,6 +16,9 @@ library(randomForest)
 library(caret)
 library(mltools)
 library(e1071)
+library (DMwR2)
+library (ROCR)
+library (pROC)
 ```
 ## **1.Analisis Exploratorio del Conjunto Datos <br><br>**
 <div style="text-align: justify"> 
@@ -747,14 +750,172 @@ Se valida las métricas el accuracy, precisión, recall, están por encima 97% l
 
 Según lo revisado desde el inicio de estudio del modelo predictivo los datos de la variable smoke indica hay un desbalanceo de los datos, por lo que siempre va tomar los resultados de los "No Fumadores", e ignorar los datos "Si Fumadores", lo que afecta el rendimiento del modelo para predecir correctamente, y en la matriz de confusión se observa correctamente la anomalia, se dan falsos negativos y falsos positivos, pero ningun caso positivo de si fumadores , por lo que modelo predictivo no es aplicable para predecir la variable "smoke"<br><br>
 
-## **2.2 Modelo Predictivo para detectar si un usuario controla o no las calorías<br>**
+## **2.2 Modelo Predictivo para detectar si una persona controla o no las calorías<br><br>**
+
+Realizar un modelo predictivo de clasificaciónbinaria para detectar si un usuario controla o no las calorías ingeridas.El análisis se apoyará sobre las mismas variables utilizadas previamente.<br>
+
+#### **2.2.1 Carga y lectura de los datos <br>**
+```{r}
+dataset <- read.csv("./data/obesity_data_set_preprocessed.csv", header = T, sep = ";")
+
+str(dataset)
+head(dataset)
+```
+#### **2.2.2 Cambio de formato para convertir la coma en punto y transformar la columnaS a numérico**<br>
+```{r}
+dataset$Height <- as.numeric(gsub(",", ".", dataset$Height))
+dataset$BMI <- as.numeric(gsub(",", ".", dataset$BMI))
+
+str(dataset)
+summary(dataset)
+```
+
+#### **2.2.3 Convertimos la variable objetivo --Calory_Monitoring--**<br>
+
+Se debe convertir la variable --Calory_Monitoring-- a factor para asegurarnos que R entiende que se trata de un problema de clasificación.<br>
+```{r}
+dataset$Calory_Monitoring <- as.factor(dataset$Calory_Monitoring)
+```
+
+#### **2.2.4  Seleccionamos los datos de entrenamiento y Prueba para la variable objetio --Calory_Monitoring--**<br>
+Dividimos los datos para su entrenamiento (80%) y prueba (20%). La variable objetivo será Calory_Monitoring.<br>
+```{r}
+set.seed(42)  # Semilla para reproducibilidad
+
+train_index <- createDataPartition(dataset$Calory_Monitoring, p = 0.8, list = FALSE)
+
+train_data <- dataset[train_index, ]  # 80% Datos para entrenamiento
+test_data <- dataset[-train_index, ]  # 20% Datos para prueba
+
+dim(train_data)
+dim(test_data)
+```
+#### **2.2.5 Selecciona el modelo de regresión logística binomial para el estudio del variable Calory_Monitoring **<br>
+
+Utilizamos un modelo de regresión logística para predecir si la persona controla las calorías. <br>
+Utilizamos todas las variables del dataset como predictoras para cruzarlas con nuestra variable objetivo<br>
+```{r}
+model <- glm(
+  Calory_Monitoring ~ .,       # Variable objetivo y todas las predictoras
+  family = binomial(link = 'logit'), 
+  data = train_data
+)
+summary (model)
+str(dataset)
+print(model)
+```
+#### **2.2.6 Evaluación del Modelo de Regresión Logística **<br>
+
+#### **--------Resultado del sumario**<br>
+```{r}
+ glm(formula = Calory_Monitoring ~ ., family = binomial(link = "logit"), 
+      data = train_data)
+```
+De estos resultados se deduce a priori que las variables #High_Caloric_Consumption,
+Vegetable_Consumption, Weight_Class_WHO y Age tienen un impacto significatvo a la hora
+de predecir si se controla la ingesta de calorías. Todos ellos tiene p-valores muy bajos,
+ (<0.01)<br>
+
+#### **2.2.6 Ejecutamos las prediciones para la comprobar patrones**<br>
+ 
+Hacemos las predicciones en el conjunto de prueba para comprobar si nuestro modelo está generalizando bien los patrones aprendidos.<br>
+
+```{r}
+predictions <- predict(model, newdata = dataset[-train_index, ], type = "response")
+```
+#### **2.2.7 Convertimos probabilidades en clases binarias (umbral = 0.5)**<br>
+```{r}
+predicted_classes <- ifelse(predictions > 0.5, 1, 0)
+
+head(predictions)
+head(predicted_classes)
+```
+#### **2.2.8 Análisis del rendimiento de nuestro modelo mediante el cálculo de métricas**<br>
+Ejecuta el estudio de la matriz de confusión, precisión, recall y FI-Score para ver como se comporta
+todo el conjunto (o datos) de prueba<br>
+
+#### **Matriz de confusión**<br>
+```{r}
+confusion_matrix <- table(Predicted = predicted_classes, Actual = dataset$Calory_Monitoring[-train_index])
+print(confusion_matrix)
+```
+##### Interpretación del resultado:<br>
+El modelo es capaz de predecir con un elevado grado de precisión (403 de un total de 422 observaciones en el conjunto de prueba) los 'true negatives', en este caso, aquellos que no controlan las calorías (0), pero arroja 19 falsos negativos y no es capaz de predecir nunca la clase 1, aquellos que controlan las calorías. Podría deberse a un umbral de clasificación demasiado alto o a un sesgo del modelo hacia la clase 0.<br> 
+
+#### **Cálculo de la precisión o accuracy**<br>
+```{r}
+accuracy <- sum(diag(confusion_matrix)) / sum(confusion_matrix)
+cat("Precisión del modelo:", round(accuracy, 4), "\n")
+```
+##### Interpretación del resultado:<br>
+la precisión arroja un valor de 0.955, lo que significa que significa que el modelo clasifica correctamente el 95% de las observaciones en el conjunto de prueba, lo cual es un buen desempeño a falta de evaluar otras métricas<br>
+
+
+#### **Matriz de confusión con el umbral rebajado a 0.4**<br>
+```{r}
+predicted_classes <- ifelse(predictions > 0.4, 1, 0)
+confusion_matrix <- table(Predicted = predicted_classes, Actual = dataset$Calory_Monitoring[-train_index])
+print(confusion_matrix)
+```
+#### **¿Existe un desbalance de clases con la subrepresentación de la clase 1?**<br>
+```{r}
+table(dataset$Calory_Monitoring)
+```
+#### **Recall**<br>
+```{r}
+TP <- confusion_matrix["1", "1"]  # True Positives
+FN <- confusion_matrix["0", "1"]  # False Negatives
+recall <- TP / (TP + FN)
+cat("Recall:", round(recall, 4), "\n")
+```
+El recall arroja un valor de 0, lo que significa que el modelo no es capaz de capturar 
+correctamente la clase 1, aquellos que controlan las calorías.
+
+#### **2.2.9 Validación y Prueba con modelo RandomForest**<br>
+Dado que nuestro modelo de regresión logística sigue dando problemas, probaremos con un modelo más robusto frente al balance de clases. este caso<br>
+```{r}
+library(randomForest)
+rf_model <- randomForest(Calory_Monitoring ~ ., data = train_data, ntree = 100)
+rf_predictions <- predict(rf_model, test_data)
+rf_confusion <- table(Predicted = rf_predictions, Actual = dataset$Calory_Monitoring[-train_index])
+
+```
+#### **Matriz de confusión con RandomForest**<br>
+```{r}
+print(rf_confusion)
+```
+
+
+#### **Cálculo del Accuracy con el nuevo modelo RForest**<br>
+```{r}
+accuracy <- (TP + FN) / sum(confusion_matrix)
+cat("Precisión (Accuracy):", round(accuracy, 4), "\n")
+```
+
+#### **Cálculo del Recall**<br>
+```{r}
+recall <- TP / (TP + FN)
+cat("Recall:", round(recall, 4), "\n")
+```
+#### **Cálculo de la precisión**<br> 
+```{r}
+precision <- TP / (TP + FN)
+cat("Precision:", round(precision, 4), "\n")
+```
+#### **Cálculo del F1-Score**<br> 
+```{r}
+f1_score <- 2 * (precision * recall) / (precision + recall)
+cat("F1-Score:", round(f1_score, 4), "\n")
+```
+##### **Conclusión del Modelo Predictivo si una persona controla o no las calorías**<br> 
+De los resultados obtenidos al calcular las métricas clave para analizar este modelo predictivo se deduce que es modelo es mejorable. Sus fortalezas estriban en que es capaz de clasificar con una alta precisión el total de las observaciones (Accuracy: 97.16%) y nunca se equivoca a la hora de predecir quién controla las calorías (Precision:100%). Por el contrario, tiene también serias deficiencias. Su bajo Recall (36.8%) indica que solo identifica correctamente cuatro de cada diez casos reales de la clase 1, o lo que es lo mismo, de aquellas personas que sí controlan las calorías. De todo ello ser deriva también un sesgo hacia la clase mayoritaria o clase 0, esa mayoría que no controla la ingesta de calorías.<br> 
 
 ## **3.Modelos Predictivos de Clasificación Multiclase<br>**
 
 #### **3.1 Cargar los datos desde el archivo <br>**
 getwd()
-file_path <- "/Volumes/KINGSTON/MAESTRIA_BIGDATA/TECNICAS_ANALISIS_ ASIG3/Cuadernos _Data/obesity_data_set_preprocessed.csv"
-file.exists("/Volumes/KINGSTON/MAESTRIA_BIGDATA/TECNICAS_ANALISIS_ ASIG3/Cuadernos _Data/obesity_data_set_preprocessed.csv")
+file_path <- "./data/obesity_data_set_preprocessed.csv"
+file.exists("./data/obesity_data_set_preprocessed.csv")
 data <- read.csv(file_path, sep = ";", header = TRUE, stringsAsFactors = FALSE)
 
 #### **3.2 Explorar los datos<br>**
@@ -867,7 +1028,7 @@ preproc <- preProcess(data[, continuas], method = c("center", "scale"))
 data[, continuas] <- predict(preproc, data[, continuas])
 summary(data)
 
-#### ** Resultado ---------------------------------------------------------------**
+#### ** Resultado ---------------------------------------------------------------**<br>
 Gender        Age              Height             Weight             BMI          Weight_Class_Mendoza_De_La_Hoz
 0:1043   Min.   :-1.6228   Min.   :-2.69492   Min.   :-1.8170   Min.   :-7.2700   Min.   :0.000                 
 1:1068   1st Qu.:-0.6789   1st Qu.:-0.76707   1st Qu.:-0.8051   1st Qu.: 0.1104   1st Qu.:1.000                 
@@ -1063,13 +1224,9 @@ Overall Statistics
                Accuracy : 0.969           
                  95% CI : (0.9477, 0.9834)
     No Information Rate : 0.269           
-    P-Value [Acc > NIR] : < 2.2e-16       
+    P-Value [Acc > NIR] : < 2.2e-16  <br>     
                                           
                           
-                                          
-
-
-
 ### **Conclusiones Predicion Multiclase:<br>**
 El enunciado nos solicitaba realizar un modelo predictivo multiclase para obtener
 el grado de obesidad de una persona. La variable objetivo que utilizamos fue 
@@ -1227,3 +1384,7 @@ Proviene del clustering jerárquico y muestra la estructura de los datos en form
 
 
 ## **Conclusiones del Trabajo.**<br><br>
+
+Es evidente la importancia que tiene la recolección, preprocesamiento y procesamiento de los datos para desarrollar cualquier proyecto análisis de datos o aprendizaje automático entre otros, siempre debemos procurar asegurar que estamos seleccionando datos de calidad, altamente confiables y relevantes para el tema que deseamos resolver. <br>
+Según el conjunto de datos o variables que seleccionemos en esos primeros pasos del análisis de la información, nos abrirá el camino para garantizar el modelado de datos correcto, que técnicas de aprendizaje supervisado o no supervisado aplicar así como sus métricas de desempeño que garantice que nuestras variables de estudio tengan una respuesta lo más precisa y confiable posible.<br>
+ 
