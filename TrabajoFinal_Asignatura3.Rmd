@@ -131,7 +131,7 @@ obesity_data_preprocessed$Height = as.integer(round(obesity_data_preprocessed$He
 
 
 #### **1.5. BMI**<br>
-Es una variable continua que indica el BMI (Body Mass Index - peso/altura^2). No está presente en el conjunto de datos orignal; calculada a partir de la altura y el peso de cada encuestado/-a incluido en dicho conjunto de datos, de la manera espcificada abajo.<br>
+Es una variable continua que indica el BMI (Body Mass Index - peso/altura^2). No está presente en el conjunto de datos original; calculada a partir de la altura y el peso de cada encuestado/-a incluido en dicho conjunto de datos, de la manera espcificada abajo.<br>
 ```{r}
 obesity_data_preprocessed$BMI = obesity_data_preprocessed$Weight/obesity_data_preprocessed$Height^2
 ```
@@ -161,29 +161,29 @@ Tenga en cuenta que la publicación mencionada no especifica con precisión cóm
 Casi con toda seguridad, la relación entre peso y longitud es importante en la clasificación, pero observar los valores mínimos y máximos abajo, hay que constatar que las clases tienen cierto solapamiento en cuanto al BMI. Eso puede ser resulto de la generación de datos sinteticos; también puede significar que la clasificación la clasificación tiene en cuenta otros valores, además del BMI.<br>
 
 ```{r}
-bmi_insufficient_weight <- obesity_data_raw$bmi[obesity_data_raw$NObeyesdad =="Insufficient_Weight"]
-bmi_normal_weight <- obesity_data_raw$bmi[obesity_data_raw$NObeyesdad == "Normal_Weight"]
-bmi_overweight_level_I <- obesity_data_raw$bmi[obesity_data_raw$NObeyesdad == "Overweight_Level_I"]
-bmi_overweight_level_II <- obesity_data_raw$bmi[obesity_data_raw$NObeyesdad == "Overweight_Level_II"]
-bmi_obesity_type_I <- obesity_data_raw$bmi[obesity_data_raw$NObeyesdad == "Obesity_Type_I"]
-bmi_obesity_type_II <- obesity_data_raw$bmi[obesity_data_raw$NObeyesdad == "Obesity_Type_II"]
-bmi_obesity_type_III <- obesity_data_raw$bmi[obesity_data_raw$NObeyesdad == "Obesity_Type_III"]
+bmi_insufficient_weight = obesity_data_raw$bmi[obesity_data_raw$NObeyesdad =="Insufficient_Weight"]
+bmi_normal_weight = obesity_data_raw$bmi[obesity_data_raw$NObeyesdad == "Normal_Weight"]
+bmi_overweight_level_I = obesity_data_raw$bmi[obesity_data_raw$NObeyesdad == "Overweight_Level_I"]
+bmi_overweight_level_II = obesity_data_raw$bmi[obesity_data_raw$NObeyesdad == "Overweight_Level_II"]
+bmi_obesity_type_I = obesity_data_raw$bmi[obesity_data_raw$NObeyesdad == "Obesity_Type_I"]
+bmi_obesity_type_II = obesity_data_raw$bmi[obesity_data_raw$NObeyesdad == "Obesity_Type_II"]
+bmi_obesity_type_III = obesity_data_raw$bmi[obesity_data_raw$NObeyesdad == "Obesity_Type_III"]
   
-summary(insufficient_weight)
-summary(normal_weight)
-summary(overweight_level_I)
-summary(overweight_level_II)
-summary(obesity_type_I)
-summary(obesity_type_II)
-summary(obesity_type_III)
+summary(bmi_insufficient_weight)
+summary(bmi_normal_weight)
+summary(bmi_overweight_level_I)
+summary(bmi_overweight_level_II)
+summary(bmi_obesity_type_I)
+summary(bmi_obesity_type_II)
+summary(bmi_obesity_type_III)
 
-rm(insufficient_weight)
-rm(normal_weight)
-rm(overweight_level_I)
-rm(overweight_level_II)
-rm(obesity_type_I)
-rm(obesity_type_II)
-rm(obesity_type_III)
+rm(bmi_insufficient_weight)
+rm(bmi_normal_weight)
+rm(bmi_overweight_level_I)
+rm(bmi_overweight_level_II)
+rm(bmi_obesity_type_I)
+rm(bmi_obesity_type_II)
+rm(bmi_obesity_type_III)
 ```
 
 ```{r}
@@ -619,7 +619,7 @@ obesity_data_preprocessed$Transport_Mean_Foot = as.integer(
 Por último, nos deshacemos de las columnas y del conjunto de datos que ya no necesitamos y colocamos las variables en un orden lógico.<br>
 
 ```{r}
-obesity_data_preprocessed = obesity_data_preprocessed[,c("Gender", "Age", "Height", "Weight", "BMI", "Weight_Class_Mendoza_De_La_Hoz", "Weight_Class_WHO", "Overweight_Family", "High_Caloric_Consumption", "Vegetable_Consumption", "Main_Meals", "Between_Meals", "Smoker", "Water_Consumption", "Calory_Monitoring", "Physical_Activity", "Tech_Devices_Use", "Alcohol_Consumption", "Transport_Mean_Automobile", "Transport_Mean_Motorbike", "Transport_Mean_Bike", "Transport_Mean_Public_Transport", "Transport_Mean_Foot")]
+#obesity_data_preprocessed = obesity_data_preprocessed[,c("Gender", "Age", "Height", "Weight", "BMI", "Weight_Class_Mendoza_De_La_Hoz", "Weight_Class_WHO", "Overweight_Family", "High_Caloric_Consumption", "Vegetable_Consumption", "Main_Meals", "Between_Meals", "Smoker", "Water_Consumption", "Calory_Monitoring", "Physical_Activity", "Tech_Devices_Use", "Alcohol_Consumption", "Transport_Mean_Automobile", "Transport_Mean_Motorbike", "Transport_Mean_Bike", "Transport_Mean_Public_Transport", "Transport_Mean_Foot")]
 
 rm(obesity_data_raw)
 ```
@@ -1214,7 +1214,7 @@ Proviene del clustering jerárquico y muestra la estructura de los datos en form
   Visualmente, muestra los clusters rojo, verde y azul proyectados en dos dimensiones.
   La superposición entre rojo y azul refuerza que estas dos agrupaciones tienen características similares.<br>
 
-### **Conclusión General Integrada**<br><br>
+#### **Conclusión General Integrada**<br><br>
 #### **Los tres gráficos se complementan y nos permiten llegar a una conclusión más sólida:** <br><br>
   #Cluster Verde:Representa a las personas con mejores hábitos (alto consumo de vegetales, menor BMI, menor consumo calórico).<br>
    #Confirmado por la alta cohesión en el Silhouette Plot y la visualización clara en el Clustering Plot.<br>
@@ -1226,4 +1226,4 @@ Proviene del clustering jerárquico y muestra la estructura de los datos en form
   #Consistencia del Número de Clusters:Tanto el Silhouette Plot como el Dendrograma confirman que 3 clusters es una segmentación adecuada.<br>
 
 
-##**Conclusiones del Trabajo.**<br><br>
+## **Conclusiones del Trabajo.**<br><br>
