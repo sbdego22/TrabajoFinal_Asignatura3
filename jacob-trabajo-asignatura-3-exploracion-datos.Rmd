@@ -17,7 +17,7 @@ Nuestro conjunto de datos inicial contiene 2111 observaciones y 18 variables (wi
 
 ```{r}
 library(readr)
-obesity_data_raw = read.csv("/home/jacob/Downloads/ObesityDataSet_raw_and_data_sinthetic.csv", header = T, sep = ",")
+obesity_data_raw = read.csv("./data/ObesityDataSet_raw_and_data_sinthetic.csv", header = T, sep = ",")
 head(obesity_data_raw)
 tail(obesity_data_raw)
 colSums(is.na(obesity_data_raw))
