@@ -1,6 +1,6 @@
 ---
-title: "TrabajoFinal_Asignatura3"
-author: "TrabajoFinal_Asignatura3"
+title: "Grupo 14_Trabajo_Final_Asignatura 3"
+author: "Integrantes: Mercedes de la Torre Fuentes/Diego Alonso Solano Bolaños/Kattia Zúñiga Acosta / Ricardo Mir de Francia/Jaco Warris"
 date: "2024-12-11"
 output: html_document
 ---
@@ -17,10 +17,617 @@ library(caret)
 library(mltools)
 library(e1071)
 ```
-## **1.Analisis Exploratorio del Conjunto Datos <br>**(Jacob)
+## **1.Analisis Exploratorio del Conjunto Datos <br><br>**
+<div style="text-align: justify"> 
+
+### **Introducción <br><br>**
+Nuestro conjunto de datos inicial contiene 2111 observaciones y 18 variables (without any NA values), obtenidas inicialmente mediante una encuesta en línea y ampliadas después con datos sintéticos. Se preveía utilizar los datos para investigar qué factores están asociados al sobrepeso y la obesidad.<br>
+
+```{r}
+library(readr)
+obesity_data_raw = read.csv("./data/ObesityDataSet_raw_and_data_sinthetic.csv", header = T, sep = ",")
+head(obesity_data_raw)
+tail(obesity_data_raw)
+colSums(is.na(obesity_data_raw))
+```
+
+El objetivo de esta sección es explorar los datos disponibles en el conjunto de datos. A continuación, se realizarán las transformaciones necesarias para poder seguir trabajando con los datos más adelante.<br>
+
+Para facilitar este segundo objetivo, ya hemos creado un segundo marco de datos "obesity_data_preprocessed": la idea es transformar el conjunto de datos inicial (denominado «obesity_data_raw») en este conjunto de datos preprocesado.<br>
+
+```{r}
+  obesity_data_preprocessed = obesity_data_raw
+```
+
+#### **1.1 Gender**<br><br>
+
+Es una variable binaria que indica el género del/de la encuestado/-a.<br>
+
+```{r}
+library(plotrix)
+table(as.factor(obesity_data_raw$Gender))
+pie3D(table(as.factor(obesity_data_raw$Gender)), main = "Proporción de sexos", col = c("thistle 1", "light cyan"), border = "lightgrey", labels = c("Female (n = 1043)", "Male (n = 1068)"), labelcex = 0.75)
+```
+
+Toma el valor 'female' o 'male', que, obviamente son valores válidos. No hay nigún valor estraño o faltante.<br>
+
+Además, constatamos que el conjunto de datos contiene una proporción entre hombres y mujeres encuestados bastante equitativa - es decir, hay 25 hombres más que mujeres, lo que supone una diferencia de (25 / 1043) * 100 ≈ 2.4%.<br>
+
+Dicha equivalencia es especialmente importante cuando se trata de cuestiones médicas - como son el sobrepeso y el obesitas - considerando que el funcionamiento del cuerpo de una persona estùa en gran medida relacionado con su sexo.<br>
+
+#### **Transformaciones** <br><br>
+Para poder trabajar mejor con esta variable, aplicamos *label encoding*, dejando dos valores numéricos al final:<br>
+
+* 0 - Female<br>
+* 1 - Male<br>
+
+```{r}
+  obesity_data_preprocessed$Gender = as.integer(ifelse(obesity_data_preprocessed$Gender == 'Female', 0, 1))
+```
+
+
+#### **1.2 Age**<br><br>
+Se trata de una variable discreta ordinal que indica la edad de/ de la encuestado, en años.<br>
+
+table(obesity_data_raw$Age)<br>
+  
+Observamos que unos pocos valores distinctos de age son números enteros que tienen una frecuencia altas, mientras muchos valores distinctos son decimales con una frequencia baja.
+Probablemente, eso es resultado del hecho que parte de los datos son sintetizados, y no provienen de una encuesta. Es decir: son calculados por un algortimo.<br>
+
+Otra observación importante es que el conjunto de datos no está nada diversificada por edades - posiblemente debido al medio en el que se publicó esta encuesta (en linea). Un 82 porciento tiene menos que 30 años; un 97 porciento tiene menos que 40. El encuestado con mayor edad tiene 61 años.<br>
+
+Esto significa que, basándose en este conjunto de datos, probablemente no sea posible hacer afirmaciones sobre toda la población - como mucho sobre aquella parte cuya edad está fuertemente representada en nuestra muestra.<br>
+
+```{r}
+print(round(cumsum(prop.table(table(round(obesity_data_raw$Age)))*100)))
+barplot(round(cumsum(prop.table(table(round(obesity_data_raw$Age)))*100)), col = "light grey", border = "light grey", main = "Frequencia relativa acumulada de la variable Age", xlab = "Age", ylab ="Frecuencia relativa acumulada")
+```
+#### **Transformaciónes**<br>
+Redondeamos los valores de la variable Age a números enteros; después la definimos como integer.<br>
+```{r}
+obesity_data_preprocessed$Age = as.integer(round(obesity_data_preprocessed$Age))
+```
+
+#### **1.3 Height**<br>
+Una variable continua que indica la altura del/de la encuestado/-a, en metros. Podía ser un buen predictor de la obesidad - partiendo de la idea que las personas de estatura más baja requieren, en general, menos calorías que las personas altas, y entonces tienen más riesgo de hiperalimentarse.<br>
+
+```{r}
+table(round(obesity_data_raw$Height, digits = 2))
+hist(obesity_data_raw$Height, main="Histograma de la variable Height", xlab="Height",ylab="densidad", col="light grey", border = "white", freq = FALSE, ylim = c(0,4))
+```
+
+El conjunto de datos cubre alturas entre 1.45 m y 1.98 m, con más observaciónes alrededor del 1.70 m. Todos los valores parecen válidos, aunque hay que observar que no podemos asumir una distribución normal.<br>
+
+```{r}
+shapiro.test(obesity_data_raw$Height)
+# p < 0.05 - no podemos asumir la distribción normal.
+```
+
+##### **Transformaciones**<br>
+Redondeamos los valores de Heigt a 2 decimales.<br>
+
+```{r}
+obesity_data_preprocessed$Height = round(obesity_data_preprocessed$Height, digits = 2)
+```
+
+
+#### **1.4. Weight**<br>
+Una variable continua que indica el peso del/de la encuestado/-a, en kilos. Por razónes obvios, se espera que este valor prediga bien el sobrepeso y la obesidad - si sube el peso, suberá también la probabilidad de sobrepeso u obesidad.<br>
+
+```{r}
+table(round(obesity_data_raw$Weight))
+hist(round(obesity_data_raw$Weight), main="Histograma de la variable Weight", xlab="Weight",ylab="densidad", col="light grey", border = "white", freq = FALSE, ylim = c(0,0.02))
+```
+
+El conjunto de datos cubre pesos entre 39 kg y 173; todos los valores parecen válidos.<br>
+
+
+##### Transformaciones<br>
+Redondeamos los valores de Weight a números enteros.<br>
+
+```{r}
+obesity_data_preprocessed$Height = as.integer(round(obesity_data_preprocessed$Height, digits = 2))
+```
+
+
+#### **1.5. BMI**<br>
+Es una variable continua que indica el BMI (Body Mass Index - peso/altura^2). No está presente en el conjunto de datos orignal; calculada a partir de la altura y el peso de cada encuestado/-a incluido en dicho conjunto de datos, de la manera espcificada abajo.<br>
+```{r}
+obesity_data_preprocessed$BMI = obesity_data_preprocessed$Weight/obesity_data_preprocessed$Height^2
+```
+
+```{r}
+table(round(obesity_data_preprocessed$BMI))
+hist(obesity_data_preprocessed$BMI, main="Histograma de la variable BMI", xlab="BMI",ylab="densidad", col="light grey", border = "white", freq = FALSE, ylim = c(0,0.02))
+```
+El BMI expresa la relación entre la altura y el peso de una persona, indicando así hasta qué punto la persona en cuestión tiene un peso saludable - vease también el apartado '7. Weight_Class_WHO'. En otras palabras, debería existir una fuerte relación positiva entre el BMI de un encuestado, y la clase de peso 'NObeyesdad' a la que se asigna esa persona (véase el apartado siguiente).<br>
+
+#### **1.6. NObeyesdad / Weight_Class_Mendoza_De_La_Hoz**<br>
+Una variable categórica nominal que clasifica los encuestados/-as según grado de peso saludable, como presentado en *Mendoza, Fabio & De la Hoz Manotas, Alexis. (2019). Dataset for estimation of obesity levels based on eating habits and physical condition in individuals from Colombia, Peru and Mexico. Data in Brief. 25. 104344. 10.1016/j.dib.2019.104344*.<br>
+
+Clasifica a los encuestados en una de las siguientes categorías:<br>
+
+Valores disponibles:<br>
+ * Insufficient_weight<br>
+ * Normal_weight<br>
+ * Overweight_level_I<br>
+ * Overweight_level_II<br>
+ * Obesity_type_I<br>
+ * Obesity_type_II<br>
+ * Obesity_type_III<br>
+
+Tenga en cuenta que la publicación mencionada no especifica con precisión cómo se asigna una persona determinada a una u otra categoría de peso.<br>
+
+Casi con toda seguridad, la relación entre peso y longitud es importante en la clasificación, pero observar los valores mínimos y máximos abajo, hay que constatar que las clases tienen cierto solapamiento en cuanto al BMI. Eso puede ser resulto de la generación de datos sinteticos; también puede significar que la clasificación la clasificación tiene en cuenta otros valores, además del BMI.<br>
+
+```{r}
+bmi_insufficient_weight <- obesity_data_raw$bmi[obesity_data_raw$NObeyesdad =="Insufficient_Weight"]
+bmi_normal_weight <- obesity_data_raw$bmi[obesity_data_raw$NObeyesdad == "Normal_Weight"]
+bmi_overweight_level_I <- obesity_data_raw$bmi[obesity_data_raw$NObeyesdad == "Overweight_Level_I"]
+bmi_overweight_level_II <- obesity_data_raw$bmi[obesity_data_raw$NObeyesdad == "Overweight_Level_II"]
+bmi_obesity_type_I <- obesity_data_raw$bmi[obesity_data_raw$NObeyesdad == "Obesity_Type_I"]
+bmi_obesity_type_II <- obesity_data_raw$bmi[obesity_data_raw$NObeyesdad == "Obesity_Type_II"]
+bmi_obesity_type_III <- obesity_data_raw$bmi[obesity_data_raw$NObeyesdad == "Obesity_Type_III"]
+  
+summary(insufficient_weight)
+summary(normal_weight)
+summary(overweight_level_I)
+summary(overweight_level_II)
+summary(obesity_type_I)
+summary(obesity_type_II)
+summary(obesity_type_III)
+
+rm(insufficient_weight)
+rm(normal_weight)
+rm(overweight_level_I)
+rm(overweight_level_II)
+rm(obesity_type_I)
+rm(obesity_type_II)
+rm(obesity_type_III)
+```
+
+```{r}
+table(obesity_data_raw$NObeyesdad)
+barplot(table(obesity_data_raw$NObeyesdad), main="Diagrama de barras de la variable NObeyesdad", col="light grey", border = "white", las=2, cex.names = 0.5)
+```
+#### **Transformaciones**<br>
+Aplicamos 'label encoding', es decir, sustituiremos los valores que consisten de texto por valores numéricos, de acuerdo con la siguente asignación.<br>
+
+ * 0 - Insufficient_weight<br>
+ * 1 - Normal_weight<br>
+ * 2 - Overweight_level_I<br>
+ * 3 - Overweight_level_II<br>
+ * 4 - Obesity_type_I<br>
+ * 5 - Obesity_type_II<br>
+ * 6 - Obesity_type_III<br>
+
+Además, cambiamos el nombre de la variable - para que refleje mejor la carga de la variable, para que tenga una capitalización en linéa con las otras variables, y para que sea más distingida de la otra variable que compone una categorización de peso (Weight_CLass_WHO, veáse a continuación).<br>
+
+La nombramos 'Weight_Class_Mendoza_De_La_Hoz'.<br>
+
+#### **1.7 Weight_Class_WHO** <br>
+Es variable discreta ordinal que clasifica los encuestados/-as según grado de peso saludable, según la normativa de la Organización Mundial de la Salud (OMS, WHO en inglés).<br>
+
+Es un dato no presente en el conjunto de datos original, calculada a partir del BMI de cada encuestado/-a de acuerdo con la siguiente asignación:<br>
+
+ * 0 - Infrapeso (BMI bajo 18.5)<br>
+ * 1 - Normal (BMI entre 18.5 y 24.9)<br>
+ * 2 - Sobrepeso (BMI entre 25.0 y 29.9)<br>
+ * 3 - Obesidad I (BMI entre 30.0 y 34.9)<br>
+ * 4 - Obesidad II (BMI entry 35.0 y 39.9)<br>
+ * 5 - Obesidad III (BMI superior a 40)<br>
+ 
+```{r}
+obesity_data_preprocessed$Weight_Class_WHO = as.integer(
+    ifelse(
+    obesity_data_preprocessed$Weight/obesity_data_preprocessed$Height^2 > 40, 5, ifelse(
+      obesity_data_preprocessed$Weight/obesity_data_preprocessed$Height^2 >= 35, 4, ifelse(
+        obesity_data_preprocessed$Weight/obesity_data_preprocessed$Height^2 >= 30, 3, ifelse(
+          obesity_data_preprocessed$Weight/obesity_data_preprocessed$Height^2 >= 25, 2, ifelse(
+            obesity_data_preprocessed$Weight/obesity_data_preprocessed$Height^2 >= 18.5, 1, 0
+          )
+        )
+      )
+    )
+  )
+)
+```
+
+
+```{r}
+table(obesity_data_preprocessed$Weight_Class_WHO)
+barplot(table(obesity_data_preprocessed$Weight_Class_WHO), main="Diagrama de barras de la variable Weight_Class_WHO", col="light grey", border = "white")
+```
+
+#### **1.8. family_history_with_overweight / Overweight_Family** <br>
+Es una variable binaria que indica si tiene familiares con sobrepeso el/la encuestado/-a.<br>
+
+Podía ser una variable miu potente en predicir la probabilidad de sobrepeso en una persona; sin embargo, un interrogatorio más específico podría haber dado lugar a un predictor más potente - por ejemplo, si alguien tiene padres o hermanos con sobrepeso. 'Familia' es un un concepto muy amplio, y sin marcas claras - algo que se ve reflejado en el hecho que una gran mayoría de los encuestados (casí 82 %) sí tiene algún miembro de familia con sobrepeso.<br>
+
+```{r}
+table(obesity_data_raw$family_history_with_overweight)
+
+pie3D(table(as.factor(obesity_data_raw$family_history_with_overweight)), main = "Proporción de encuestados con/sin familia con sobrepeso", col = c("white", "light grey"), border = "light grey", labels = c("no (n = 385)", "yes (n = 1726)"))
+```
+
+
+#### **Transformaciones**<br>
+Aplicamos 'label encoding', es decir, sustituiremos los valores que consisten de texto por valores numéricos, de acuerdo con la siguente asignación.<br>
+
+ * 0 - no<br>
+ * 1 - yes<br>
+
+Además, cambiamos el nombre de la variable - para que que tenga una capitalización en conformidad con las otras variables; en el proceso, también hacemos el nombre un poco más corto. La nombramos 'Overweight_Family'.<br>
+
+```{r}
+obesity_data_preprocessed$Overweight_Family = as.integer(ifelse(obesity_data_preprocessed$family_history_with_overweight == "no", 0, 1))
+```
+
+
+#### **1.9 FAVC / High_Caloric_Consumption**<br>
+Se trata de variable binaria que indica si el/la encuestado/-a consume comida rica en calorías regularmente.<br>
+
+```{r}
+table(as.factor(obesity_data_raw$FAVC))
+
+pie3D(table(as.factor(obesity_data_raw$FAVC)), main = "Proporción de encuestados que sí / no consume comida rica en calorías regularmente", col = c("white", "light grey"), border = "light grey", labels = c("no (n = 245)", "yes (n = 1866)"))
+```
+
+Hacemos la misma observación que en relación con la variable anterior: podía ser muy potente para predicir el sobrepeso - obviamente - pero la formulación poca definida de la pregunta probablemente ha quitado algo de esa potencia. Más especifífico: qué quiere decir 'regularmente'?<br>
+
+Efectivamente, vemos que de nuevo una gran mayoría de los encuestados (más que 88%) ha respondido de manera confirmativa.<br>
+
+#### **Transformacione**s
+Aplicamos 'label encoding', es decir, sustituiremos los valores que consisten de texto por valores numéricos, de acuerdo con la siguente asignación.<br>
+
+* 0 - no<br>
+* 1 - yes<br>
+
+Además, cambiamos el nombre de la variable - para que que tenga una capitalización en conformidad con las otras variables, y para evitar abreviacióne potencialmente confusas. La nombramos 'High_Caloric_Consumption'.<br>
+
+```{r}
+obesity_data_preprocessed$High_Caloric_Consumption = as.integer(ifelse(obesity_data_preprocessed$FAVC == "no", 0, 1))
+```
+
+
+#### **1.10 FCVC / Vegetable_Consumption**<br>
+Se trata variable categórica ordinal que indica como de frequente el/la encuestado/-a consume verduras, según la siguiente asignación.<br>
+
+* 1 - Nunca<br>
+* 2 - De vez en cuando<br>
+* 3 - Siempre<br>
+
+```{r}
+table(round(obesity_data_raw$FCVC))
+
+barplot(table(round(obesity_data_raw$FCVC)), main="Diagrama de barras de la variable FCVC", col="light grey", border = "white")
+```
+
+Podía ser un buen predictor para el sobrepeso de una persona, especialmente combinado con otras variables que indican una dieta sana (por ejemplo, la consomación de agua, no consumir entre comidas principales).<br>
+
+#### **Transformaciones**<br>
+En el conjunto de datos original, la variable FCVC tome valores descimales, algo aue no es conforme con el hecho que es una variable discreta. Por eso, vamos a redondearla. Después, para guardar la conformidad en el conjunto de datos, la transformamos de forma que el valor más bajo sea 0. La asinación nueva será, entonces:<br>
+
+* 0 - Nunca <br>
+* 1 - De vez en cuando <br>
+* 2 - Siempre<br>
+
+Además le nombramos 'Vegetable_Consumption', para evitar abreviaciónes potencialmente confusas.<br>
+
+```{r}
+obesity_data_preprocessed$Vegetable_Consumption = as.integer(
+  round(
+    ifelse(
+      obesity_data_preprocessed$FCVC == 1, 0, ifelse(
+      obesity_data_preprocessed$FCVC == 2, 1, 2
+      )
+    )
+  )
+)
+```
+
+
+#### **1.11. NCP / Main_Meals**<br>
+Se trata de una variable categorica ordinal que indica cuantas comidas principales come el/la encuestado/-a por día.<br>
+
+La descripción del conjunto de datos indica, que el encuesto ofreció las siguientes respuestas a la pregunta, cuántas comidas principales el/la encuestado/-a consumepor día.<br>
+
+* 1 o 2<br>
+* 3<br>
+* Más que 3<br>
+
+Sin embargo, cuando miramos los valores presentes en el conjunto de datos, encontramos valores hasta 4. Además, el hecho que el valor más frequente es '3' sugiere que, en realidad, esa variable indica la cantidad de comidas principales por día (desayuno - almuerzo - cena).<br>
+```{r}
+table(round(obesity_data_raw$NCP))
+
+barplot(table(round(obesity_data_raw$NCP)), main="Diagrama de barras de la variable NCP", col="light grey", border = "white")
+```
+No esperamos una relación fuerte entre cantidad de comidas principales, y el sobrepeso. Quizá exista una relación indirecta: las personas con patrones alimentarios menos estructurados -es decir, las que hacen menos comidas principales- pueden picar más, lo que aumentaría el riesgo de obesidad.<br>
+
+#### **Transformaciones**
+Visto que se trata de una variable discreta, redondeamos sus valores. Adeḿas cambiamos su nombre a 'Main_Meals', para evitar abreviaciónes potencialmente confusas.<br>
+
+```{r}
+obesity_data_preprocessed$Main_Meals = as.integer(round(obesity_data_preprocessed$NCP))
+```
+
+#### **1.12. CAEC / Between_Meals**<br>
+Es una variable categorica ordinal que indica como de frequente el/la encuestado/-a come entre comidas principales.<br>
+
+```{r}
+table(factor(obesity_data_raw$CAEC, levels = c("no", "Sometimes", "Frequently", "Always")))
+table(factor(obesity_data_raw$CAEC, levels = c("no", "Sometimes", "Frequently", "Always")))
+barplot(table(factor(obesity_data_raw$CAEC, levels = c("no", "Sometimes", "Frequently", "Always"))), main="Diagrama de barras de la variable CAEC", col="light grey", border = "white")
+```
+la frecuencia con la que una persona come entre las comidas principales podría ser un buen indicador del sobrepeso. Sin embargo, la subjetivdad de las respuestas presentadas a los encuestados quita algo de esa potencia - la gran mayoría (más que 83%) tiene la percepción de comer entre comidas principales 'de vez en cuando' - pero no se especifica qué significa exactamente "de vez en cuando". Tampóco no da ningúna indicación de qué cantidad de comida se trata.<br>
+
+#### **Transformaciones**
+Aplicamos 'label encoding', es decir, sustituiremos los valores que consisten de texto por valores numéricos, de acuerdo con la siguente asignación.<br>
+
+* 0 - No<br>
+* 1 - De vez en cuando<br>
+* 2 - Frequentemente<br>
+* 3 - Siempre <br>
+
+Además, cambiamos el nombre de la variable - para que que tenga una capitalización en conformidad con las otras variables, y para evitar abreviacióne potencialmente confusas. La nombramos 'Between_Meals'.<br>
+
+
+```{r}
+obesity_data_preprocessed$Between_Meals = as.integer(
+  ifelse(
+    obesity_data_preprocessed$CAEC == "no", 0, ifelse(
+      obesity_data_preprocessed$CAEC == "Sometimes", 1, ifelse(
+        obesity_data_preprocessed$CAEC == "Frequently", 2, 3
+      )
+    )
+  )
+)
+```
+
+
+#### **1.13. SMOKE / Smoker**<br>
+Se trata de una variable binaria que indica si el/la encuestado/-a es fumador, o no.<br>
+
+```{r}
+table(obesity_data_raw$SMOKE)
+
+pie3D(table(as.factor(obesity_data_raw$SMOKE)), main = "Proporción de encuestados fumadores / no fumadores", col = c("white", "light grey"), border = "light grey", labels = c("no (n = 2067)", "yes (n = 385)"), theta = 1.5)
+```
+La relación entre fumar y peso corporal no es obvia; sin embargo, no sería de extrañar entre los dos. Podemos imaginar las siguentes relaciónes directas y no directas:<br>
+
+* Podría ser que los ingredientes activos de los cigarrillos tuvieran un impacto directo en el metabolismo.<br>
+* Podría ser que las personas más propensas a la adicción a los cigarrillos también tuvieran un mayor riesgo de obesidad.<br>
+* Podría ser que un grupo de hombres llevara conscientemente una vida más sana y, por tanto, fumara menos y vigilara más su peso corporal.<br>
+
+Sin duda, sería interesante seguir estudiando esta variable.<br>
+
+#### **Transformaciones**<br>
+Aplicamos 'label encoding', es decir, sustituiremos los valores que consisten de texto por valores numéricos, de acuerdo con la siguente asignación.<br>
+
+* 0 - No<br>
+* 1 - Sí<br> 
+
+Además, cambiamos el nombre de la variable - para que que tenga una capitalización en conformidad con las otras variables. La nombramos 'Smoker'.<br>
+
+```{r}
+obesity_data_preprocessed$Smoker = as.integer(
+  ifelse(
+  obesity_data_preprocessed$SMOKE == "no", 0, 1
+  )
+)
+```
+
+#### **1.14. CH20 / Water_Consumption**<br>
+Se trata de una variable categórica ordinal, que indica cuanto agua consume el/la encuestado/-a por día, según la siguiente asignación.<br>
+
+ * 1 - Menos que un litro<br>
+ * 2 - Entre 1 litro y 2 litros<br>
+ * 3 - Más que 2 litros<br>
+
+```{r}
+table(round(obesity_data_raw$CH2O))
+barplot(table(round(obesity_data_raw$CH2O)), main="Diagrama de barras de la variable CH2O", col="light grey", border = "white")
+```
+
+Se espera que exista cierta relación negativa entre el consumo de agua y la obesidad - beber cantidades adecuadas de agua puede encajar en un estilo de vida consciente de la nutrición, lo que también podría reducir el riesgo de obesidad.<br>
+
+#### **Transformaciones**<br>
+En el conjunto de datos original, la variable CH2O tome valores descimales, algo aue no es conforme con el hecho que es una variable discreta. Por eso, vamos a redondearla. Después, para guardar la conformidad en el conjunto de datos, la transformamos de forma que el valor más bajo sea 0. La asinación nueva será, entonces:<br>
+
+* 0 - Menos que un litro<br>
+* 1 - Entre 1 litro y 2 litros<br>
+* 2 - Más que 2 litros<br>
+
+Además le nombramos 'Water_Consumption', para evitar abreviaciónes potencialmente confusas.<br>
+
+```{r}
+obesity_data_preprocessed$Water_Consumption = as.integer(
+  round(
+    ifelse(
+      obesity_data_preprocessed$CH2O == 1, 0, ifelse(
+        obesity_data_preprocessed$CH2O == 2, 1, 2
+      )
+    )
+  )
+)
+```
+
+
+#### 1.15. SCC / Calory_Monitoring<br>
+Es una variable binaria que indica si el/la encuestado/-a sigue la ingesta de calorías, o no.<br>
+
+```{r}
+table(obesity_data_raw$SCC)
+
+pie3D(table(as.factor(obesity_data_raw$SCC)), main = "Proporción de encuestados que sí / no monotorían si ingesto calórico", col = c("white", "light grey"), border = "light grey", labels = c("no (n = 2015)", "yes (n = 96)"), theta = 1.5)
+```
+Se espera que el peso de las personas que controlan su ingesta calórica sea inferior al de las que no lo hacen, por lo que existe una relación negativa razonablemente fuerte.<br>
+
+#### **Transformaciones**
+
+Aplicamos 'label encoding', es decir, sustituiremos los valores que consisten de texto por valores numéricos, de acuerdo con la siguente asignación.<br>
+
+* 0 - No<br>
+* 1 - Sí <br>
+
+Además, cambiamos el nombre de la variable - para que que tenga una capitalización en conformidad con las otras variables. La nombramos 'Water_Consumption'.<br>
+
+```{r}
+obesity_data_preprocessed$Water_Consumption = as.integer(
+  round(
+    ifelse(
+      obesity_data_preprocessed$CH2O == 1, 0, ifelse(
+        obesity_data_preprocessed$CH2O == 2, 1, 2
+      )
+    )
+  )
+)
+```
+
+
+#### **1.16. FAF / Physical_Activity**<br>
+Se trata de una variable discreta ordinal que indica cuanto tiempo dedica el/la encuestado/-a a la actividad física, de acuerdo con la siguiente asignación:<br>
+
+* 0 - Nunca<br>
+* 1 - 1 o 2 días<br>
+* 2 - 2 a 4 días<br>
+* 3 - 4 o 5 días<br>
+
+(Obsérvese que el periodo de referencia sigue sin especificarse: suponemos que estamos hablando de días a la semana. En cualquier caso, cuanto mayor es la cifra, más tiempo se dedica al ejercicio físico.)<br>
+
+```{r}
+table(round(obesity_data_raw$FAF))
+barplot(table(round(obesity_data_raw$FAF)), main="Diagrama de barras de la variable FAF", col="light grey", border = "white")
+```
+
+Es probable que haya una relación negativa entre el tiempo dedicado al ejercicio físico y el sobrepeso.<br>
+
+#### **Transformaciones**
+En el conjunto de datos original, la variable FAF tome valores descimales, algo aue no es conforme con el hecho que es una variable discreta. Por eso, vamos a redondearla.<br>
+
+Además le nombramos 'Physical_Activity', para evitar abreviaciónes potencialmente confusas.<br>
+
+```{r}
+obesity_data_preprocessed$Physical_Activity = as.integer(
+  round(
+    ifelse(
+      obesity_data_preprocessed$FAF == 1, 0, ifelse(
+        obesity_data_preprocessed$FAF == 2, 1, 2
+      )
+    )
+  )
+)
+```
+
+#### **17. TUE / Tech_Devices_Use**
+Se trata de una variable categorica ordinal que indica cuanto tiempo dedica el/la encuestado/-a al uso de medios técnicos, de acuerdo con la siguente asignación:<br>
+
+* 0 - 0 a 2 horas<br>
+* 1 - 3 a 5 horas<br>
+* 2 - Más que 5 horas<br>
+
+```{r}
+table(round(obesity_data_raw$TUE))
+barplot(table(round(obesity_data_raw$TUE)), main="Diagrama de barras de la variable TUE", col="light grey", border = "white")
+```
+
+Podría existir una relación positiva entre el uso de dispositivos electrónicos y la obesidad, suponiendo que las personas que pasan tiempo utilizando este tipo de dispositivos dediquen menos tiempo a actividades físicas. Así que este punto de vista supone, por así decirlo, que esta variable es la contrapartida de la variable FAF, que describe el nivel de actividad física (véase más arriba).<br>
+
+#### **Transformaciones**<br>
+En el conjunto de datos original, la variable TUE tome valores descimales, algo aue no es conforme con el hecho que es una variable discreta. Por eso, vamos a redondearla.<br>
+
+Además le nombramos 'Physical_Activity', para evitar abreviaciónes potencialmente confusas.<br>
+
+```{r}
+obesity_data_preprocessed$Tech_Devices_Use = as.integer(round(obesity_data_preprocessed$TUE))
+```
+
+
+#### **1.18. CALC / Alcohol_Consumption**<br>
+Se trata de una variable discreta ordinal que indica como de frequene el/la encuestado/-a consume alcohol.<br>
+
+```{r}
+table(factor(obesity_data_raw$CALC, levels = c("no", "Sometimes", "Frequently", "Always")))
+
+barplot(table(factor(obesity_data_raw$CALC, levels = c("no", "Sometimes", "Frequently", "Always"))), main="Diagrama de barras de la variable CALC", col="light grey", border = "white")
+```
+Se sabe que el alcohol engorda, por lo que se espera una relación positiva entre la frecuencia del consumo de alcohol y la clase de peso.<br>
+
+Sin embargo, como ha ocurrido con variables anteriores, hay que señalar que las categorías no están claramente delimitadas: ¿qué se entiende por 'a veces', por 'con frecuencia' y por 'siempre'?<br>
+
+#### **Transformaciones**<br>
+Para empezar, observamos que sólo una encuestada indicó que «siempre» bebe alcohol. Además, no está claro qué se entiende por esta categoría y en qué se diferencia del grupo de bebedores frecuentes de alcohol.<br>
+
+Por estos motivos, eliminaremos la última categoría; la persona que se encuentre en esta categoría será reclasificada una categoría por debajo.<br>
+
+Segudno, aplicamos 'label encoding', es decir, sustituiremos los valores que consisten de texto por valores numéricos, de acuerdo con la siguente asignación.<br>
+
+ * 0 - Nunca<br>
+ * 1 - De vez en cuando<br>
+ * 2 - Frequentemente<br>
+ 
+Por último, en este caso también cambiamos el nombre de la variable, para deshacernos de abreviaturas potencialmente confusas. La nombramos 'Alcohol_Consumption'.<br>
+
+#### 1.19. MTRANS / Transport_Mean_Moto / Transport_Mean_Bike / Transport_Mean_Public_Transport / Transport_Mean_Foot<br>
+MTRANS es una variabele categorica nominal. Indica el medio de transporte más usado por el/la encuestado/-a.<br>
+
+```{r}
+table(obesity_data_raw$MTRANS)
+
+pie3D(table(as.factor(obesity_data_raw$MTRANS)), main = "Proporción de medio de transporte más usado", labels = c("Automobile (n = 457)", "Bike (n = 7)", "Motorbike (n = 11)", "Public_Transportation (n = 1580)", "Walking"), theta = 1.25, labelcex = 0.75)
+```
+Se espera cierta relación entre medio de transporte más usado y peso - Los que van a pie o en bicicleta queman más calorías que los que van en coche o en moto.<br>
+
+El transporte público se situará en un punto intermedio, ya que implica desplazarse hasta la parada y, en algunos casos, hacer transbordo, dos cosas que también implican actividad física.<br>
+
+#### **Transformaciones**<br>
+Aplicamos one-hot encoding - es que decir, vamos a añadir una columna  por cada  valor que existe pare el variable "MTRANS"; si la fila contiene el valor para el variable MTRANS que coincide con las respectiva columna, el valor de esa columna  seŕá 1; en el caso contrario seŕa 0 .<br>
+
+```{r}
+obesity_data_preprocessed$Transport_Mean_Automobile = as.integer(
+    ifelse(
+      obesity_data_preprocessed$MTRANS == "Automobile", 1, 0
+  )
+)
+
+obesity_data_preprocessed$Transport_Mean_Bike = as.integer(
+  ifelse(
+    obesity_data_preprocessed$MTRANS == "Bike", 1, 0
+  )
+)
+
+obesity_data_preprocessed$Transport_Mean_Motorbike = as.integer(
+  ifelse(
+    obesity_data_preprocessed$MTRANS == "Motorbike", 1, 0
+  )
+)
+
+obesity_data_preprocessed$Transport_Mean_Public_Transport = as.integer(
+  ifelse(
+    obesity_data_preprocessed$MTRANS == "Public_Transportation", 1, 0
+  )
+)
+
+obesity_data_preprocessed$Transport_Mean_Foot = as.integer(
+  ifelse(
+    obesity_data_preprocessed$MTRANS == "Walking", 1, 0
+  )
+)
+```
+
+#### **Finalmente...**<br>
+Por último, nos deshacemos de las columnas y del conjunto de datos que ya no necesitamos y colocamos las variables en un orden lógico.<br>
+
+```{r}
+obesity_data_preprocessed = obesity_data_preprocessed[,c("Gender", "Age", "Height", "Weight", "BMI", "Weight_Class_Mendoza_De_La_Hoz", "Weight_Class_WHO", "Overweight_Family", "High_Caloric_Consumption", "Vegetable_Consumption", "Main_Meals", "Between_Meals", "Smoker", "Water_Consumption", "Calory_Monitoring", "Physical_Activity", "Tech_Devices_Use", "Alcohol_Consumption", "Transport_Mean_Automobile", "Transport_Mean_Motorbike", "Transport_Mean_Bike", "Transport_Mean_Public_Transport", "Transport_Mean_Foot")]
+
+rm(obesity_data_raw)
+```
+
+
 ## **2.Modelos Predictivos de Clasificación Binaria<br>**
 
-## **2.1 Modelo Predictivo para detectar si un usuario es fumador o no<br>**(Diego)
+## **2.1 Modelo Predictivo para detectar si un usuario es fumador o no<br>**
 
 #### **2.1.1 Procede con la carga de datos<br>**
 ```{r}
@@ -140,9 +747,9 @@ Se valida las métricas el accuracy, precisión, recall, están por encima 97% l
 
 Según lo revisado desde el inicio de estudio del modelo predictivo los datos de la variable smoke indica hay un desbalanceo de los datos, por lo que siempre va tomar los resultados de los "No Fumadores", e ignorar los datos "Si Fumadores", lo que afecta el rendimiento del modelo para predecir correctamente, y en la matriz de confusión se observa correctamente la anomalia, se dan falsos negativos y falsos positivos, pero ningun caso positivo de si fumadores , por lo que modelo predictivo no es aplicable para predecir la variable "smoke"<br><br>
 
-## **2.2 Modelo Predictivo para detectar si un usuario controla o no las calorías<br>**(Ricardo)
+## **2.2 Modelo Predictivo para detectar si un usuario controla o no las calorías<br>**
 
-## **3.Modelos Predictivos de Clasificación Multiclase<br>**(Kathy)
+## **3.Modelos Predictivos de Clasificación Multiclase<br>**
 
 #### **3.1 Cargar los datos desde el archivo <br>**
 getwd()
@@ -495,7 +1102,7 @@ Clase 5 (Obesidad III)	98%	  98%	           98%
 
 En resumen podemos indicar que el modelo es confiable para clasificar el grado de obesidad, aunque tiene ligeras confusiones entre clases cercanas.<br>
 
-## **4. Técnica de Clustering para Segmentar a la Población del Data Set**(Mercedes)
+## **4. Técnica de Clustering para Segmentar a la Población del Data Set**
 
 #### **4.1 Convertimos FAVC ("yes"/"no") a valores numéricos (1/0)<br><br>**
 ```{r}
